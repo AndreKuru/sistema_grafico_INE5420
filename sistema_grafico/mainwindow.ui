@@ -7,163 +7,420 @@
     <x>0</x>
     <y>0</y>
     <width>1162</width>
-    <height>511</height>
+    <height>653</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Widget</string>
   </property>
-  <widget class="QSplitter" name="splitter_2">
+  <widget class="QLabel" name="FunctionsMenuLabel">
+   <property name="geometry">
+    <rect>
+     <x>11</x>
+     <y>11</y>
+     <width>99</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Functions menu</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>586</x>
+     <y>10</y>
+     <width>551</width>
+     <height>531</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="ViewportLayout">
+    <item>
+     <widget class="QLabel" name="ViewportLabel">
+      <property name="text">
+       <string>Viewport</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGraphicsView" name="Viewport"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QFrame" name="ObjectsLayout">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>10</y>
-     <width>1111</width>
-     <height>471</height>
+     <y>30</y>
+     <width>570</width>
+     <height>431</height>
     </rect>
    </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <widget class="QWidget" name="layoutWidget">
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Functions menu</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QFrame" name="frame">
-       <layout class="QGridLayout" name="gridLayout_4">
-        <item row="3" column="0">
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <widget class="QPushButton" name="pushButton_Create">
-            <property name="text">
-             <string>Create</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="pushButton_8">
-            <property name="text">
-             <string>Delete</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Objects</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QListWidget" name="listWidget"/>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolBox" name="toolBox">
-       <widget class="QWidget" name="Window">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>570</width>
-          <height>143</height>
-         </rect>
-        </property>
-        <attribute name="label">
-         <string>Window</string>
-        </attribute>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="1" column="0" colspan="2">
-          <widget class="QPushButton" name="pushButton">
+   <widget class="QLabel" name="Objects">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>9</y>
+      <width>46</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Objects</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="DisplayFile">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>552</width>
+      <height>131</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTabWidget" name="ObjectsTab">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>170</y>
+      <width>541</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>2</number>
+    </property>
+    <widget class="QWidget" name="PointTab">
+     <attribute name="title">
+      <string>Point</string>
+     </attribute>
+     <widget class="QWidget" name="layoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>126</width>
+        <height>64</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="PointCoordinatesLayout">
+       <item>
+        <layout class="QHBoxLayout" name="XLayout">
+         <item>
+          <widget class="QLabel" name="XLabel">
            <property name="text">
-            <string>Up</string>
+            <string>X</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="0" colspan="3">
-          <widget class="QSplitter" name="splitter">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Step</string>
-            </property>
-           </widget>
-           <widget class="QLineEdit" name="lineEdit"/>
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>%</string>
-            </property>
-           </widget>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QPushButton" name="pushButton_5">
+         <item>
+          <widget class="QLineEdit" name="XValue">
            <property name="text">
-            <string>In</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QPushButton" name="pushButton_2">
-           <property name="text">
-            <string>Left</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QPushButton" name="pushButton_3">
-           <property name="text">
-            <string>Rigth</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" colspan="2">
-          <widget class="QPushButton" name="pushButton_4">
-           <property name="text">
-            <string>Down</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
-          <widget class="QPushButton" name="pushButton_6">
-           <property name="text">
-            <string>Out</string>
+            <string/>
            </property>
           </widget>
          </item>
         </layout>
-       </widget>
-      </widget>
-     </item>
-    </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="YLayout">
+         <item>
+          <widget class="QLabel" name="YLabel">
+           <property name="text">
+            <string>Y</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="YValue">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="SegmentTab">
+     <attribute name="title">
+      <string>Segment</string>
+     </attribute>
+     <widget class="QWidget" name="layoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>276</width>
+        <height>92</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="SegmentCoordinatesLayout">
+       <item>
+        <layout class="QVBoxLayout" name="BeginningLayout">
+         <item>
+          <widget class="QLabel" name="BeginningLabel">
+           <property name="text">
+            <string>Beginning</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="BeginningCoordinatesLayout">
+           <item>
+            <layout class="QHBoxLayout" name="BeginningXLayout">
+             <item>
+              <widget class="QLabel" name="BeginningXLabel">
+               <property name="text">
+                <string>X1</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="BeginningXValue">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="BeginningYLayout">
+             <item>
+              <widget class="QLabel" name="BeginningYLabel">
+               <property name="text">
+                <string>Y1</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="BeginningYValue">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="EndLayout">
+         <item>
+          <widget class="QLabel" name="EndLabel">
+           <property name="text">
+            <string>End</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="EndCoordinatesLayout">
+           <item>
+            <layout class="QHBoxLayout" name="EndXLayout">
+             <item>
+              <widget class="QLabel" name="EndXLabel">
+               <property name="text">
+                <string>X2</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="EndXValue">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="EndYLayout">
+             <item>
+              <widget class="QLabel" name="EndYLabel">
+               <property name="text">
+                <string>Y2</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="EndYValue">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="WireframeTab">
+     <attribute name="title">
+      <string>Wireframe</string>
+     </attribute>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>4</x>
+        <y>4</y>
+        <width>524</width>
+        <height>141</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="WireframeCoordinatesLayout">
+       <item>
+        <layout class="QVBoxLayout" name="WireframeXLayout">
+         <item>
+          <widget class="QLabel" name="WireframeXLabel">
+           <property name="text">
+            <string>X (one by line)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPlainTextEdit" name="WireframeXValue"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="WireframeYLayout">
+         <item>
+          <widget class="QLabel" name="WireframeYLabel">
+           <property name="text">
+            <string>Y (one by line)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPlainTextEdit" name="WireframeYValue"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QLabel" name="label_3">
+   <widget class="QSplitter" name="ObjectControlLayout">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>380</y>
+      <width>461</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <widget class="QPushButton" name="pushButton_Create">
+     <property name="text">
+      <string>Create</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_Delete">
+     <property name="text">
+      <string>Delete</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QToolBox" name="WindowControlToolBox">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>470</y>
+     <width>561</width>
+     <height>172</height>
+    </rect>
+   </property>
+   <widget class="QWidget" name="WindowControlLayout">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>561</width>
+      <height>140</height>
+     </rect>
+    </property>
+    <attribute name="label">
+     <string>Window</string>
+    </attribute>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="0" colspan="2">
+      <widget class="QPushButton" name="UpButton">
        <property name="text">
-        <string>Viewport</string>
+        <string>Up</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QGraphicsView" name="graphicsView"/>
+     <item row="0" column="0" colspan="3">
+      <widget class="QSplitter" name="StepLayout">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <widget class="QLabel" name="StepLabel">
+        <property name="text">
+         <string>Step</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="StepValue"/>
+       <widget class="QLabel" name="PercentLabel">
+        <property name="text">
+         <string>%</string>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="ZoomInButton">
+       <property name="text">
+        <string>In</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QPushButton" name="LeftButton">
+       <property name="text">
+        <string>Left</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QPushButton" name="RightButton">
+       <property name="text">
+        <string>Right</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="2">
+      <widget class="QPushButton" name="DownButton">
+       <property name="text">
+        <string>Down</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QPushButton" name="ZoomOutButton">
+       <property name="text">
+        <string>Out</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
   </widget>
+  <zorder>splitter_2</zorder>
+  <zorder>ObjectsLayout</zorder>
  </widget>
  <resources/>
  <connections/>
