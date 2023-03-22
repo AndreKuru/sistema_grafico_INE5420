@@ -7,110 +7,356 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import Qt
 
 
 class Ui_Widget(object):
     def setupUi(self, Widget):
         Widget.setObjectName("Widget")
-        Widget.resize(1162, 646)
-        self.splitter_2 = QtWidgets.QSplitter(parent=Widget)
-        self.splitter_2.setGeometry(QtCore.QRect(10, 10, 1111, 471))
-        self.splitter_2.setOrientation(QtCore.Qt.Orientation.Horizontal)
-        self.splitter_2.setObjectName("splitter_2")
-        self.layoutWidget = QtWidgets.QWidget(parent=self.splitter_2)
+        Widget.resize(1162, 653)
+
+        self.FunctionsMenuLabel = QtWidgets.QLabel(parent=Widget)
+        self.FunctionsMenuLabel.setGeometry(QtCore.QRect(11, 11, 99, 18))
+        self.FunctionsMenuLabel.setObjectName("FunctionsMenuLabel")
+
+        self.layoutWidget = QtWidgets.QWidget(parent=Widget)
+        self.layoutWidget.setGeometry(QtCore.QRect(586, 10, 551, 531))
         self.layoutWidget.setObjectName("layoutWidget")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.layoutWidget)
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.label = QtWidgets.QLabel(parent=self.layoutWidget)
-        self.label.setObjectName("label")
-        self.verticalLayout_2.addWidget(self.label)
-        self.frame = QtWidgets.QFrame(parent=self.layoutWidget)
-        self.frame.setObjectName("frame")
-        self.gridLayout_4 = QtWidgets.QGridLayout(self.frame)
-        self.gridLayout_4.setObjectName("gridLayout_4")
-        self.gridLayout_3 = QtWidgets.QGridLayout()
-        self.gridLayout_3.setObjectName("gridLayout_3")
-        self.pushButton_Create = QtWidgets.QPushButton(parent=self.frame)
+
+        self.ViewportLayout = QtWidgets.QVBoxLayout(self.layoutWidget)
+        self.ViewportLayout.setContentsMargins(0, 0, 0, 0)
+        self.ViewportLayout.setObjectName("ViewportLayout")
+
+        self.ViewportLabel = QtWidgets.QLabel(parent=self.layoutWidget)
+        self.ViewportLabel.setObjectName("ViewportLabel")
+
+        self.ViewportLayout.addWidget(self.ViewportLabel)
+
+        #self.Viewport = QtWidgets.QGraphicsView(parent=self.layoutWidget)
+        #self.Viewport.setObjectName("Viewport")
+
+        self.label = QtWidgets.QLabel()
+        self.Viewport = QtGui.QPixmap(600,900)
+        self.Viewport.fill(Qt.GlobalColor.white)
+        self.label.setPixmap(self.Viewport)
+
+        self.ViewportLayout.addWidget(self.label)
+
+        self.ObjectsLayout = QtWidgets.QFrame(parent=Widget)
+        self.ObjectsLayout.setGeometry(QtCore.QRect(10, 30, 570, 431))
+        self.ObjectsLayout.setObjectName("ObjectsLayout")
+
+        self.Objects = QtWidgets.QLabel(parent=self.ObjectsLayout)
+        self.Objects.setGeometry(QtCore.QRect(9, 9, 46, 18))
+        self.Objects.setObjectName("Objects")
+
+        self.DisplayFile = QtWidgets.QListWidget(parent=self.ObjectsLayout)
+        self.DisplayFile.setGeometry(QtCore.QRect(10, 30, 552, 131))
+        self.DisplayFile.setObjectName("DisplayFile")
+
+        self.ObjectsTab = QtWidgets.QTabWidget(parent=self.ObjectsLayout)
+        self.ObjectsTab.setGeometry(QtCore.QRect(10, 170, 541, 191))
+        self.ObjectsTab.setObjectName("ObjectsTab")
+
+        self.PointTab = QtWidgets.QWidget()
+        self.PointTab.setObjectName("PointTab")
+
+        self.layoutWidget_2 = QtWidgets.QWidget(parent=self.PointTab)
+        self.layoutWidget_2.setGeometry(QtCore.QRect(0, 0, 126, 64))
+        self.layoutWidget_2.setObjectName("layoutWidget_2")
+
+        self.PointCoordinatesLayout = QtWidgets.QVBoxLayout(self.layoutWidget_2)
+        self.PointCoordinatesLayout.setContentsMargins(0, 0, 0, 0)
+        self.PointCoordinatesLayout.setObjectName("PointCoordinatesLayout")
+
+        self.XLayout = QtWidgets.QHBoxLayout()
+        self.XLayout.setObjectName("XLayout")
+
+        self.XLabel = QtWidgets.QLabel(parent=self.layoutWidget_2)
+        self.XLabel.setObjectName("XLabel")
+
+        self.XLayout.addWidget(self.XLabel)
+
+        self.XValue = QtWidgets.QLineEdit(parent=self.layoutWidget_2)
+        self.XValue.setText("")
+        self.XValue.setObjectName("XValue")
+
+        self.XLayout.addWidget(self.XValue)
+
+        self.PointCoordinatesLayout.addLayout(self.XLayout)
+
+        self.YLayout = QtWidgets.QHBoxLayout()
+        self.YLayout.setObjectName("YLayout")
+
+        self.YLabel = QtWidgets.QLabel(parent=self.layoutWidget_2)
+        self.YLabel.setObjectName("YLabel")
+
+        self.YLayout.addWidget(self.YLabel)
+
+        self.YValue = QtWidgets.QLineEdit(parent=self.layoutWidget_2)
+        self.YValue.setText("")
+        self.YValue.setObjectName("YValue")
+
+        self.YLayout.addWidget(self.YValue)
+
+        self.PointCoordinatesLayout.addLayout(self.YLayout)
+
+        self.ObjectsTab.addTab(self.PointTab, "")
+
+        self.SegmentTab = QtWidgets.QWidget()
+        self.SegmentTab.setObjectName("SegmentTab")
+
+        self.layoutWidget_3 = QtWidgets.QWidget(parent=self.SegmentTab)
+        self.layoutWidget_3.setGeometry(QtCore.QRect(0, 0, 276, 92))
+        self.layoutWidget_3.setObjectName("layoutWidget_3")
+
+        self.SegmentCoordinatesLayout = QtWidgets.QHBoxLayout(self.layoutWidget_3)
+        self.SegmentCoordinatesLayout.setContentsMargins(0, 0, 0, 0)
+        self.SegmentCoordinatesLayout.setObjectName("SegmentCoordinatesLayout")
+
+        self.BeginningLayout = QtWidgets.QVBoxLayout()
+        self.BeginningLayout.setObjectName("BeginningLayout")
+
+        self.BeginningLabel = QtWidgets.QLabel(parent=self.layoutWidget_3)
+        self.BeginningLabel.setObjectName("BeginningLabel")
+
+        self.BeginningLayout.addWidget(self.BeginningLabel)
+
+        self.BeginningCoordinatesLayout = QtWidgets.QVBoxLayout()
+        self.BeginningCoordinatesLayout.setObjectName("BeginningCoordinatesLayout")
+
+        self.BeginningXLayout = QtWidgets.QHBoxLayout()
+        self.BeginningXLayout.setObjectName("BeginningXLayout")
+
+        self.BeginningXLabel = QtWidgets.QLabel(parent=self.layoutWidget_3)
+        self.BeginningXLabel.setObjectName("BeginningXLabel")
+
+        self.BeginningXLayout.addWidget(self.BeginningXLabel)
+
+        self.BeginningXValue = QtWidgets.QLineEdit(parent=self.layoutWidget_3)
+        self.BeginningXValue.setText("")
+        self.BeginningXValue.setObjectName("BeginningXValue")
+
+        self.BeginningXLayout.addWidget(self.BeginningXValue)
+
+        self.BeginningCoordinatesLayout.addLayout(self.BeginningXLayout)
+
+        self.BeginningYLayout = QtWidgets.QHBoxLayout()
+        self.BeginningYLayout.setObjectName("BeginningYLayout")
+
+        self.BeginningYLabel = QtWidgets.QLabel(parent=self.layoutWidget_3)
+        self.BeginningYLabel.setObjectName("BeginningYLabel")
+
+        self.BeginningYLayout.addWidget(self.BeginningYLabel)
+
+        self.BeginningYValue = QtWidgets.QLineEdit(parent=self.layoutWidget_3)
+        self.BeginningYValue.setText("")
+        self.BeginningYValue.setObjectName("BeginningYValue")
+
+        self.BeginningYLayout.addWidget(self.BeginningYValue)
+
+        self.BeginningCoordinatesLayout.addLayout(self.BeginningYLayout)
+
+        self.BeginningLayout.addLayout(self.BeginningCoordinatesLayout)
+
+        self.SegmentCoordinatesLayout.addLayout(self.BeginningLayout)
+
+        self.EndLayout = QtWidgets.QVBoxLayout()
+        self.EndLayout.setObjectName("EndLayout")
+
+        self.EndLabel = QtWidgets.QLabel(parent=self.layoutWidget_3)
+        self.EndLabel.setObjectName("EndLabel")
+
+        self.EndLayout.addWidget(self.EndLabel)
+
+        self.EndCoordinatesLayout = QtWidgets.QVBoxLayout()
+        self.EndCoordinatesLayout.setObjectName("EndCoordinatesLayout")
+
+        self.EndXLayout = QtWidgets.QHBoxLayout()
+        self.EndXLayout.setObjectName("EndXLayout")
+
+        self.EndXLabel = QtWidgets.QLabel(parent=self.layoutWidget_3)
+        self.EndXLabel.setObjectName("EndXLabel")
+
+        self.EndXLayout.addWidget(self.EndXLabel)
+
+        self.EndXValue = QtWidgets.QLineEdit(parent=self.layoutWidget_3)
+        self.EndXValue.setText("")
+        self.EndXValue.setObjectName("EndXValue")
+
+        self.EndXLayout.addWidget(self.EndXValue)
+
+        self.EndCoordinatesLayout.addLayout(self.EndXLayout)
+
+        self.EndYLayout = QtWidgets.QHBoxLayout()
+        self.EndYLayout.setObjectName("EndYLayout")
+
+        self.EndYLabel = QtWidgets.QLabel(parent=self.layoutWidget_3)
+        self.EndYLabel.setObjectName("EndYLabel")
+
+        self.EndYLayout.addWidget(self.EndYLabel)
+
+        self.EndYValue = QtWidgets.QLineEdit(parent=self.layoutWidget_3)
+        self.EndYValue.setText("")
+        self.EndYValue.setObjectName("EndYValue")
+
+        self.EndYLayout.addWidget(self.EndYValue)
+
+        self.EndCoordinatesLayout.addLayout(self.EndYLayout)
+
+        self.EndLayout.addLayout(self.EndCoordinatesLayout)
+
+        self.SegmentCoordinatesLayout.addLayout(self.EndLayout)
+
+        self.ObjectsTab.addTab(self.SegmentTab, "")
+
+        self.WireframeTab = QtWidgets.QWidget()
+        self.WireframeTab.setObjectName("WireframeTab")
+
+        self.widget = QtWidgets.QWidget(parent=self.WireframeTab)
+        self.widget.setGeometry(QtCore.QRect(4, 4, 524, 141))
+        self.widget.setObjectName("widget")
+
+        self.WireframeCoordinatesLayout = QtWidgets.QHBoxLayout(self.widget)
+        self.WireframeCoordinatesLayout.setContentsMargins(0, 0, 0, 0)
+        self.WireframeCoordinatesLayout.setObjectName("WireframeCoordinatesLayout")
+
+        self.WireframeXLayout = QtWidgets.QVBoxLayout()
+        self.WireframeXLayout.setObjectName("WireframeXLayout")
+
+        self.WireframeXLabel = QtWidgets.QLabel(parent=self.widget)
+        self.WireframeXLabel.setObjectName("WireframeXLabel")
+
+        self.WireframeXLayout.addWidget(self.WireframeXLabel)
+
+        self.WireframeXValue = QtWidgets.QPlainTextEdit(parent=self.widget)
+        self.WireframeXValue.setObjectName("WireframeXValue")
+
+        self.WireframeXLayout.addWidget(self.WireframeXValue)
+
+        self.WireframeCoordinatesLayout.addLayout(self.WireframeXLayout)
+
+        self.WireframeYLayout = QtWidgets.QVBoxLayout()
+        self.WireframeYLayout.setObjectName("WireframeYLayout")
+
+        self.WireframeYLabel = QtWidgets.QLabel(parent=self.widget)
+        self.WireframeYLabel.setObjectName("WireframeYLabel")
+
+        self.WireframeYLayout.addWidget(self.WireframeYLabel)
+
+        self.WireframeYValue = QtWidgets.QPlainTextEdit(parent=self.widget)
+        self.WireframeYValue.setObjectName("WireframeYValue")
+
+        self.WireframeYLayout.addWidget(self.WireframeYValue)
+
+        self.WireframeCoordinatesLayout.addLayout(self.WireframeYLayout)
+
+        self.ObjectsTab.addTab(self.WireframeTab, "")
+
+        self.ObjectControlLayout = QtWidgets.QSplitter(parent=self.ObjectsLayout)
+        self.ObjectControlLayout.setGeometry(QtCore.QRect(50, 380, 461, 26))
+        self.ObjectControlLayout.setOrientation(QtCore.Qt.Orientation.Horizontal)
+        self.ObjectControlLayout.setObjectName("ObjectControlLayout")
+
+        self.pushButton_Create = QtWidgets.QPushButton(parent=self.ObjectControlLayout)
         self.pushButton_Create.setObjectName("pushButton_Create")
-        self.gridLayout_3.addWidget(self.pushButton_Create, 0, 0, 1, 1)
-        self.pushButton_8 = QtWidgets.QPushButton(parent=self.frame)
-        self.pushButton_8.setObjectName("pushButton_8")
-        self.gridLayout_3.addWidget(self.pushButton_8, 0, 1, 1, 1)
-        self.gridLayout_4.addLayout(self.gridLayout_3, 3, 0, 1, 1)
-        self.label_2 = QtWidgets.QLabel(parent=self.frame)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout_4.addWidget(self.label_2, 0, 0, 1, 1)
-        self.listWidget = QtWidgets.QListWidget(parent=self.frame)
-        self.listWidget.setObjectName("listWidget")
-        self.gridLayout_4.addWidget(self.listWidget, 2, 0, 1, 1)
-        self.verticalLayout_2.addWidget(self.frame)
-        self.toolBox = QtWidgets.QToolBox(parent=self.layoutWidget)
-        self.toolBox.setObjectName("toolBox")
-        self.Window = QtWidgets.QWidget()
-        self.Window.setGeometry(QtCore.QRect(0, 0, 570, 143))
-        self.Window.setObjectName("Window")
-        self.gridLayout = QtWidgets.QGridLayout(self.Window)
+
+        self.pushButton_Delete = QtWidgets.QPushButton(parent=self.ObjectControlLayout)
+        self.pushButton_Delete.setObjectName("pushButton_Delete")
+
+        self.WindowControlToolBox = QtWidgets.QToolBox(parent=Widget)
+        self.WindowControlToolBox.setGeometry(QtCore.QRect(20, 470, 561, 172))
+        self.WindowControlToolBox.setObjectName("WindowControlToolBox")
+
+        self.WindowControlLayout = QtWidgets.QWidget()
+        self.WindowControlLayout.setGeometry(QtCore.QRect(0, 0, 561, 140))
+        self.WindowControlLayout.setObjectName("WindowControlLayout")
+
+        self.gridLayout = QtWidgets.QGridLayout(self.WindowControlLayout)
         self.gridLayout.setObjectName("gridLayout")
-        self.pushButton = QtWidgets.QPushButton(parent=self.Window)
-        self.pushButton.setObjectName("pushButton")
-        self.gridLayout.addWidget(self.pushButton, 1, 0, 1, 2)
-        self.splitter = QtWidgets.QSplitter(parent=self.Window)
-        self.splitter.setOrientation(QtCore.Qt.Orientation.Horizontal)
-        self.splitter.setObjectName("splitter")
-        self.label_4 = QtWidgets.QLabel(parent=self.splitter)
-        self.label_4.setObjectName("label_4")
-        self.lineEdit = QtWidgets.QLineEdit(parent=self.splitter)
-        self.lineEdit.setObjectName("lineEdit")
-        self.label_5 = QtWidgets.QLabel(parent=self.splitter)
-        self.label_5.setObjectName("label_5")
-        self.gridLayout.addWidget(self.splitter, 0, 0, 1, 3)
-        self.pushButton_5 = QtWidgets.QPushButton(parent=self.Window)
-        self.pushButton_5.setObjectName("pushButton_5")
-        self.gridLayout.addWidget(self.pushButton_5, 1, 2, 1, 1)
-        self.pushButton_2 = QtWidgets.QPushButton(parent=self.Window)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.gridLayout.addWidget(self.pushButton_2, 3, 0, 1, 1)
-        self.pushButton_3 = QtWidgets.QPushButton(parent=self.Window)
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.gridLayout.addWidget(self.pushButton_3, 3, 1, 1, 1)
-        self.pushButton_4 = QtWidgets.QPushButton(parent=self.Window)
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.gridLayout.addWidget(self.pushButton_4, 4, 0, 1, 2)
-        self.pushButton_6 = QtWidgets.QPushButton(parent=self.Window)
-        self.pushButton_6.setObjectName("pushButton_6")
-        self.gridLayout.addWidget(self.pushButton_6, 4, 2, 1, 1)
-        self.toolBox.addItem(self.Window, "")
-        self.verticalLayout_2.addWidget(self.toolBox)
-        self.layoutWidget1 = QtWidgets.QWidget(parent=self.splitter_2)
-        self.layoutWidget1.setObjectName("layoutWidget1")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.layoutWidget1)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.label_3 = QtWidgets.QLabel(parent=self.layoutWidget1)
-        self.label_3.setObjectName("label_3")
-        self.verticalLayout.addWidget(self.label_3)
-        self.graphicsView = QtWidgets.QGraphicsView(parent=self.layoutWidget1)
-        self.graphicsView.setObjectName("graphicsView")
-        self.verticalLayout.addWidget(self.graphicsView)
+
+        self.UpButton = QtWidgets.QPushButton(parent=self.WindowControlLayout)
+        self.UpButton.setObjectName("UpButton")
+
+        self.gridLayout.addWidget(self.UpButton, 1, 0, 1, 2)
+
+        self.StepLayout = QtWidgets.QSplitter(parent=self.WindowControlLayout)
+        self.StepLayout.setOrientation(QtCore.Qt.Orientation.Horizontal)
+        self.StepLayout.setObjectName("StepLayout")
+
+        self.StepLabel = QtWidgets.QLabel(parent=self.StepLayout)
+        self.StepLabel.setObjectName("StepLabel")
+
+        self.StepValue = QtWidgets.QLineEdit(parent=self.StepLayout)
+        self.StepValue.setObjectName("StepValue")
+
+        self.PercentLabel = QtWidgets.QLabel(parent=self.StepLayout)
+        self.PercentLabel.setObjectName("PercentLabel")
+
+        self.gridLayout.addWidget(self.StepLayout, 0, 0, 1, 3)
+
+        self.ZoomInButton = QtWidgets.QPushButton(parent=self.WindowControlLayout)
+        self.ZoomInButton.setObjectName("ZoomInButton")
+
+        self.gridLayout.addWidget(self.ZoomInButton, 1, 2, 1, 1)
+
+        self.LeftButton = QtWidgets.QPushButton(parent=self.WindowControlLayout)
+        self.LeftButton.setObjectName("LeftButton")
+
+        self.gridLayout.addWidget(self.LeftButton, 3, 0, 1, 1)
+
+        self.RightButton = QtWidgets.QPushButton(parent=self.WindowControlLayout)
+        self.RightButton.setObjectName("RightButton")
+
+        self.gridLayout.addWidget(self.RightButton, 3, 1, 1, 1)
+
+        self.DownButton = QtWidgets.QPushButton(parent=self.WindowControlLayout)
+        self.DownButton.setObjectName("DownButton")
+
+        self.gridLayout.addWidget(self.DownButton, 4, 0, 1, 2)
+
+        self.ZoomOutButton = QtWidgets.QPushButton(parent=self.WindowControlLayout)
+        self.ZoomOutButton.setObjectName("ZoomOutButton")
+
+        self.gridLayout.addWidget(self.ZoomOutButton, 4, 2, 1, 1)
+
+        self.WindowControlToolBox.addItem(self.WindowControlLayout, "")
+
+        self.ObjectsLayout.raise_()
 
         self.retranslateUi(Widget)
+
+        self.ObjectsTab.setCurrentIndex(0)
+
         QtCore.QMetaObject.connectSlotsByName(Widget)
 
     def retranslateUi(self, Widget):
         _translate = QtCore.QCoreApplication.translate
         Widget.setWindowTitle(_translate("Widget", "Widget"))
-        self.label.setText(_translate("Widget", "Functions menu"))
+        self.FunctionsMenuLabel.setText(_translate("Widget", "Functions menu"))
+        self.ViewportLabel.setText(_translate("Widget", "Viewport"))
+        self.Objects.setText(_translate("Widget", "Objects"))
+        self.XLabel.setText(_translate("Widget", "X"))
+        self.YLabel.setText(_translate("Widget", "Y"))
+        self.ObjectsTab.setTabText(self.ObjectsTab.indexOf(self.PointTab), _translate("Widget", "Point"))
+        self.BeginningLabel.setText(_translate("Widget", "Beginning"))
+        self.BeginningXLabel.setText(_translate("Widget", "X1"))
+        self.BeginningYLabel.setText(_translate("Widget", "Y1"))
+        self.EndLabel.setText(_translate("Widget", "End"))
+        self.EndXLabel.setText(_translate("Widget", "X2"))
+        self.EndYLabel.setText(_translate("Widget", "Y2"))
+        self.ObjectsTab.setTabText(self.ObjectsTab.indexOf(self.SegmentTab), _translate("Widget", "Segment"))
+        self.WireframeXLabel.setText(_translate("Widget", "X (one by line)"))
+        self.WireframeYLabel.setText(_translate("Widget", "Y (one by line)"))
+        self.ObjectsTab.setTabText(self.ObjectsTab.indexOf(self.WireframeTab), _translate("Widget", "Wireframe"))
         self.pushButton_Create.setText(_translate("Widget", "Create"))
-        self.pushButton_8.setText(_translate("Widget", "Delete"))
-        self.label_2.setText(_translate("Widget", "Objects"))
-        self.pushButton.setText(_translate("Widget", "Up"))
-        self.label_4.setText(_translate("Widget", "Step"))
-        self.label_5.setText(_translate("Widget", "%"))
-        self.pushButton_5.setText(_translate("Widget", "In"))
-        self.pushButton_2.setText(_translate("Widget", "Left"))
-        self.pushButton_3.setText(_translate("Widget", "Rigth"))
-        self.pushButton_4.setText(_translate("Widget", "Down"))
-        self.pushButton_6.setText(_translate("Widget", "Out"))
-        self.toolBox.setItemText(self.toolBox.indexOf(self.Window), _translate("Widget", "Window"))
-        self.label_3.setText(_translate("Widget", "Viewport"))
+        self.pushButton_Delete.setText(_translate("Widget", "Delete"))
+        self.UpButton.setText(_translate("Widget", "Up"))
+        self.StepLabel.setText(_translate("Widget", "Step"))
+        self.PercentLabel.setText(_translate("Widget", "%"))
+        self.ZoomInButton.setText(_translate("Widget", "In"))
+        self.LeftButton.setText(_translate("Widget", "Left"))
+        self.RightButton.setText(_translate("Widget", "Right"))
+        self.DownButton.setText(_translate("Widget", "Down"))
+        self.ZoomOutButton.setText(_translate("Widget", "Out"))
+        self.WindowControlToolBox.setItemText(self.WindowControlToolBox.indexOf(self.WindowControlLayout), _translate("Widget", "Window"))
