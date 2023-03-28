@@ -14,8 +14,14 @@ canvas.create_line(100, 200, 200, 35, fill=COLOR, width=WIDTH)
 canvas.create_oval(300, 300, 350, 350, fill=COLOR, width=WIDTH, outline="")
 
 ###
-creation_of_object = Toplevel(main_window)
-creation_of_object.title("Creation of object")
+create_point = Toplevel(main_window)
+create_point.title("Create point")
+
+create_line = Toplevel(main_window)
+create_line.title("Create line")
+
+create_wireframe = Toplevel(main_window)
+create_wireframe.title("Create wireframe")
 
 window_function = Toplevel(main_window)
 window_function.title("Window Functions")
@@ -35,6 +41,13 @@ display_file_label.pack()
 
 display_file = Listbox(display_file_frame)
 display_file.pack()
+
+#Window control
+window_control_frame = Frame(window_function)
+window_control_frame.pack()
+
+window_control_label = Label(window_control_frame, text="Window control")
+window_control_label.pack()
 
 #Directions
 directions = Frame(window_function)
@@ -63,3 +76,20 @@ zoom_out_button = Button(zoom, text="-")
 zoom_out_button.pack(side="left")
 
 main_window.mainloop()
+
+#Creation of point - still not working
+point_coord_frame = Frame(create_point)
+point_coord_frame.pack()
+
+create_point_button = Button(point_coord_frame, text="Create")
+create_point_button.pack()
+
+point_coord_label = Label(point_coord_frame, text="Point coordinates")
+point_coord_label.pack()
+
+point_x_label = Label(point_coord_frame, text="X:")
+point_x_label.pack()
+
+point_y_label = Label(point_coord_frame, text="Y:")
+point_y_label.pack()
+
