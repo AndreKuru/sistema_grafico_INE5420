@@ -1,6 +1,11 @@
 from dataclasses import dataclass, field
 from tkinter import Tk, Frame, Canvas, Label, Button, Toplevel, Listbox, Entry, Menu
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from controller import Controller
+
+from model import Coordinates
 
 WIDTH = 5
 COLOR = "green"
@@ -145,6 +150,7 @@ def init_window_function(_main_window):
 
 @dataclass
 class Graphic_Viewer:
+    #Controller: Controller
     _main_window: Tk = field(default_factory=Tk)
     _canvas: Canvas = field(init=False)
     _display_file_list: Listbox = field(init=False)
@@ -162,6 +168,9 @@ class Graphic_Viewer:
         # canvas.create_oval(p, p, p+3, p+3, fill=COLOR, outline="")
 
         self._display_file_list = init_window_function(self._main_window)
+
+    def draw_point(self, coordinates: Coordinates):
+        self._canvas.create_oval(coordinates.x, coordinates.y, coordinates.x + 3, coordinates + 3, outline="")
 
     def run(self):
         self._main_window.mainloop()
