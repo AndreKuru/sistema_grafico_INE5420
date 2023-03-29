@@ -54,14 +54,14 @@ class Controller:
         self._drawer = drawer
 
     def create_point(self, x: int, y: int):
-        name = "Point1"
+        name = "Point"
         point = Point(name, Coordinates(x, y))
         self._display_file.append(point)
         self._drawer.insert_drawable(point)
         self.redraw()
 
     def create_line(self, x1: int, y1: int, x2: int, y2: int):
-        name = "Line1"
+        name = "Line"
         endpoint1 = Coordinates(x1, y1)
         endpoint2 = Coordinates(x2, y2)
         line = Line(name, endpoint1, endpoint2)
@@ -70,7 +70,7 @@ class Controller:
         self.redraw()
 
     def create_wireframe(self, list_x: list(int), list_y: list(int)):
-        name = "Wireframe1"
+        name = "Wireframe"
         coordinates = list()
         for i in range(len(list_x)):
             coordinate = Coordinates(list_x[i], list_y[i])
