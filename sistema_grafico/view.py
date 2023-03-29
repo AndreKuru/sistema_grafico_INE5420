@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from controller import Controller
 
-from model import Coordinates
+from model import Coordinates, Area2d
 
 WIDTH = 5
 COLOR = "green"
@@ -17,16 +17,17 @@ class Graphic_Viewer:
     _main_window: Tk = field(default_factory=Tk)
     _canvas: Canvas = field(init=False)
     _display_file_list: Listbox = field(init=False)
-    world_window: Area2d
-    window: Area2d
-    viewport: Area2d
+    _viewport: Area2d = field(init=False)
 
     def __post_init__(self):
 
         viewport_frame = Frame(self._main_window)
         viewport_frame.pack(side="right")
 
-        self._canvas = Canvas(viewport_frame, width=760, height=540, background="white", border=10, relief="raised")
+        width = 760
+        height = 540
+        self._viewport = Area2d(Coordinates(0, 0), Coordinates(width, height))
+        self._canvas = Canvas(viewport_frame, width=width, height=height, background="white", border=10, relief="raised")
         self._canvas.pack()
 
         # canvas.create_line_window(100, 200, 200, 35, fill=COLOR, width=WIDTH)

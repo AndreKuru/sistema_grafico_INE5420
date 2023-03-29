@@ -8,10 +8,19 @@ class Coordinates:
     x: int|double|float
     y: int|double|float
 
+    def __sub__ (self, other: "Coordinates"):
+        x = self.x - other.x
+        y = self.y - other.y
+        return Coordinates(x, y)
+
+
 @dataclass
 class Area2d:
     min: Coordinates
     max: Coordinates
+
+    def size():
+        return max - min
 
 class Drawer(Protocol):
     def draw_point(self, coordinates: Coordinates):

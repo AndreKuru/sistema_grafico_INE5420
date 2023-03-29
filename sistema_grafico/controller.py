@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 
-from model import Coordinates, Point, Line, Wireframe, Drawable
+from model import Coordinates, Point, Line, Wireframe, Drawable, Area2d
 
 if TYPE_CHECKING:
     from view import Graphic_Viewer
@@ -11,43 +11,42 @@ if TYPE_CHECKING:
 class Controller:
     _display_file: list[Drawable] = field(default_factory=list)
     _drawer: Optional["Graphic_Viewer"] = None
-    world_window: Area2d
-    window: Area2d = world_window
-    viewport: Area2d
+    _world_window: Area2d = Area2d(Coordinates(0, 0), Coordinates(1000, 1000))
+    _window: Area2d = Area2d(Coordinates(0, 0), Coordinates(1000, 1000))
 
-    def transform_window_to_viewport(self, window_coordinates: Coordinates):
-        x_w_max = self.window.max.x
-        x_w_min = self.window.min.x
-        x_vp_max = self.viewport.max.x
-        x_vp_min = self.viewport.min.x
+    def transform_window_to_viewport(self, drawable_in_window: Coordinates):
+        x_w_max = self._window.max.x
+        x_w_min = self._window.min.x
+        x_vp_max = self._drawer._viewport.max.x
+        x_vp_min = self._drawer._viewport.min.x
 
-        y_w_max = self.window.max.y
-        y_w_min = self.window.min.y
-        y_vp_max = self.viewport.max.y
-        y_vp_min = self.viewport.min.y
+        y_w_max = self._window.max.y
+        y_w_min = self._window.min.y
+        y_vp_max = self._drawer._viewport.max.y
+        y_vp_min = self._drawer._viewport.min.y
 
-        viewport_x = (coordinates.x - x_w_min) / (x_w_max - x_w_min) * (x_vp_max - x_vp_min)
-        viewport_y = (1 - ((coordinates.y - y_w_min)/(y_w_max - y_w_min))) * (y_vp_max - y_vp_min)
+        viewport_x = (drawable_in_window.x - x_w_min) / (x_w_max - x_w_min) * (x_vp_max - x_vp_min)
+        viewport_y = (1 - ((drawable_in_window.y - y_w_min)/(y_w_max - y_w_min))) * (y_vp_max - y_vp_min)
 
         viewport_coordinates = Coordinates(int(viewport_x), int(viewport_y))
 
         return viewport_coordinates
 
     def transform_viewport_to_window(self, viewport_coordinates: Coordinates):
-        x_w_max = self.window.max.x
-        x_w_min = self.window.min.x
-        x_vp_max = self.viewport.max.x
-        x_vp_min = self.viewport.min.x
+        x_w_max = self._window.max.x
+        x_w_min = self._window.min.x
+        x_vp_max = self._drawer._viewport.max.x
+        x_vp_min = self._drawer._viewport.min.x
 
-        y_w_max = self.window.max.y
-        y_w_min = self.window.min.y
-        y_vp_max = self.viewport.max.y
-        y_vp_min = self.viewport.min.y
+        y_w_max = self._window.max.y
+        y_w_min = self._window.min.y
+        y_vp_max = self._drawer._viewport.max.y
+        y_vp_min = self._drawer._viewport.min.y
 
-        window_x = coordinates.x * ((x_w_max - x_w_min)/(x_vp_max - x_vp_min)) + x_w_min 
-        window_y = (1 - (coordinates.y/(y_vp_max - y_vp_min))) * (y_w_max - y_w_min) + y_w_min
+        window_x = viewport_coordinates.x * ((x_w_max - x_w_min)/(x_vp_max - x_vp_min)) + x_w_min 
+        window_y = (1 - (viewport_coordinates.y/(y_vp_max - y_vp_min))) * (y_w_max - y_w_min) + y_w_min
 
-        window_coordinates = Coordinates(float(window_x), float(window_y))
+        window_coordinates = Coordinates(window_x, window_y)
 
         return window_coordinates
 
