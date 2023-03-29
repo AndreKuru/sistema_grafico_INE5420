@@ -219,7 +219,9 @@ class Graphic_Viewer:
 
 
 
-    def draw_point(self, coordinates: Coordinates):
+    def draw_point(self, world_coordinates: Coordinates):
+        coordinates = self.controller.transform_window_to_viewport(world_coordinates)
+        
         self._canvas.create_oval(coordinates.x, coordinates.y, coordinates.x + 5, coordinates.y + 5, fill="black", outline="")
         # self._canvas.create_line(100, 200, 200, 35, fill=COLOR, width=WIDTH)
         # p = 300
