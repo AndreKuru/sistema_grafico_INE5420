@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass, field
 from tkinter import Tk, Frame, Canvas, Label, Button, Toplevel, Listbox, Entry, Menu
 from typing import TYPE_CHECKING
@@ -22,7 +23,7 @@ class Graphic_Viewer:
         viewport_frame = Frame(self._main_window)
         viewport_frame.pack(side="right")
 
-        self._canvas = Canvas(viewport_frame, width=960, height=540, background="white", border=10, relief="raised")
+        self._canvas = Canvas(viewport_frame, width=760, height=540, background="white", border=10, relief="raised")
         self._canvas.pack()
 
         # canvas.create_line_window(100, 200, 200, 35, fill=COLOR, width=WIDTH)
@@ -149,13 +150,13 @@ class Graphic_Viewer:
 
         create_point_button = Button(create_frame, 
                                     text="Point", 
-                                    command=lambda : self.create_point_window(self._main_window)).pack(side="left")
+                                    command=lambda : self.create_point_window()).pack(side="left")
         create_line_button = Button(create_frame, 
                                     text="Line", 
-                                    command=lambda : self.create_line_window(self._main_window)).pack(side="left")
+                                    command=lambda : self.create_line_window()).pack(side="left")
         create_wireframe_button = Button(create_frame, 
                                     text="Wireframe", 
-                                    command=lambda : self.create_wireframe_window(self._main_window)).pack(side="left")
+                                    command=lambda : self.create_wireframe_window()).pack(side="left")
 
         #Window control
         window_control_frame = Frame(window_function)
@@ -185,6 +186,3 @@ class Graphic_Viewer:
 
     def run(self):
         self._main_window.mainloop()
-
-app = Graphic_Viewer()
-app.run()
