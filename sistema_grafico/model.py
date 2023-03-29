@@ -42,3 +42,9 @@ class Line:
 class Wireframe:
     name: str
     vertexes: list[Coordinates]
+
+    def draw(self, drawer: Drawer):
+        if len(self.vertexes) > 2:
+            for i in range(len(self.vertexes)-1):
+                drawer.draw_line(self.vertexes[i], self.vertexes[i+1])
+            drawer.draw_line(self.vertexes[-1], self.vertexes[0])

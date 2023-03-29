@@ -62,17 +62,29 @@ class Graphic_Viewer:
 
         return point_x_entry, point_y_entry
 
+    def insert_coordinates(self, list_x: Listbox, list_y: Listbox, entry_x: Entry, entry_y: Entry):
+        list_x.insert("end", entry_x.get())
+        list_y.insert("end", entry_y.get())
+        
 
     def ask_several_coordinates(self, coord_frame):
         Label(coord_frame, text="All endpoints").pack()
-        all_coordinates = Listbox(coord_frame)
+        all_coordinates = Frame(coord_frame)
         all_coordinates.pack()
 
-        Label(coord_frame, text="New endpoint").pack()
-        self.ask_coordinates(coord_frame)
+        all_x = Listbox(all_coordinates, width=5)
+        all_x.pack(side="left")
 
-        insert_coordinates = Button(coord_frame, text="Insert")
-        insert_coordinates.pack()
+        all_y = Listbox(all_coordinates, width=5)
+        all_y.pack(side="right")
+
+        Label(coord_frame, text="New endpoint").pack()
+        entry_x, entry_y = self.ask_coordinates(coord_frame)
+        Button(coord_frame,
+               command=lambda : self.insert_coordinates(all_x, all_y, entry_x, entry_y),
+                text="Insert").pack()
+
+        return all_x, all_y
 
     #Creation of point - still not working
     def create_point_window(self):
@@ -114,6 +126,18 @@ class Graphic_Viewer:
                                                             int(y2_entry.get())),
                text="Create").pack()
 
+    def create_wireframe(self, listbox_x: Listbox, listbox_y: Listbox):
+        all_x = list()
+        for x in listbox_x.get(0, listbox_x.size()):
+            all_x.append(int(x))
+
+        all_y = list()
+        for y in listbox_y.get(0, listbox_x.size()):
+            all_y.append(int(y))
+
+        self.controller.create_wireframe(all_x, all_y)
+
+
     # Creation of wireframe
     def create_wireframe_window(self):
         create_wireframe_window = Toplevel(self._main_window)
@@ -122,10 +146,11 @@ class Graphic_Viewer:
         wireframe_coord_frame = Frame(create_wireframe_window)
         wireframe_coord_frame.pack()
 
-        self.ask_several_coordinates(wireframe_coord_frame)
+        listbox_x, listbox_y = self.ask_several_coordinates(wireframe_coord_frame)
 
-        create_wireframe_button = Button(wireframe_coord_frame, text="Create")
-        create_wireframe_button.pack()
+        Button(wireframe_coord_frame, 
+               command=lambda : self.create_wireframe(listbox_x, listbox_y), 
+               text="Create").pack()
 
     def init_window_function(self):
 
