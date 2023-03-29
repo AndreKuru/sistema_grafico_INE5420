@@ -24,7 +24,7 @@ class Drawable(Protocol):
 @dataclass
 class Point:
     name: str
-    cordinates: Coordinates
+    coordinates: Coordinates
 
     def draw(self, drawer: Drawer):
         drawer.draw_point(self.coordinates)

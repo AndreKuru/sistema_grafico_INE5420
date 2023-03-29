@@ -30,7 +30,7 @@ class Graphic_Viewer:
         # p = 300
         # canvas.create_oval(p, p, p+3, p+3, fill=COLOR, outline="")
 
-        self._display_file_list = self.init_window_function()
+        self.init_window_function()
 
         self.controller.set_drawer(self)
 
@@ -38,7 +38,7 @@ class Graphic_Viewer:
         self._canvas.delete("all")
 
     def insert_drawable(self, drawable):
-        self._display_file_list.insert("END", drawable.name)
+        self._display_file_list.insert("end", drawable.name)
 
 
     def ask_coordinates(self, coord_frame):
@@ -85,8 +85,9 @@ class Graphic_Viewer:
         entry_x, entry_y = self.ask_coordinates(point_coord_frame)
 
         create_point_button = Button(point_coord_frame, 
-                                     text="Create",
-                                     command=lambda :self.controller.create_point(entry_x.get(), entry_y.get())).pack()
+                                     command=lambda :self.controller.create_point(int(entry_x.get()), 
+                                                                                  int(entry_y.get())),
+                                     text="Create").pack()
 
     # Creation of line
     def create_line_window(self):
@@ -99,15 +100,19 @@ class Graphic_Viewer:
         endpoint1 = Label(line_coord_frame, text="Endpoint 1")
         endpoint1.pack()
 
-        self.ask_coordinates(line_coord_frame)
+        x1_entry, y1_entry = self.ask_coordinates(line_coord_frame)
 
         endpoint2 = Label(line_coord_frame, text="Endpoint 2")
         endpoint2.pack()
 
-        self.ask_coordinates(line_coord_frame)
+        x2_entry, y2_entry = self.ask_coordinates(line_coord_frame)
 
-        create_line_button = Button(line_coord_frame, text="Create")
-        create_line_button.pack()
+        Button(line_coord_frame, 
+               command=lambda : self.controller.create_line(int(x1_entry.get()),
+                                                            int(y1_entry.get()),
+                                                            int(x2_entry.get()),
+                                                            int(y2_entry.get())),
+               text="Create").pack()
 
     # Creation of wireframe
     def create_wireframe_window(self):
@@ -138,7 +143,10 @@ class Graphic_Viewer:
         display_file_frame.pack()
 
         display_file_label = Label(display_file_frame, text="Display File").pack()
-        display_file_list = Listbox(display_file_frame).pack()
+        display_file_list = Listbox(display_file_frame)
+        display_file_list.pack()
+
+        self._display_file_list = display_file_list
 
         delete = Button(display_file_frame, text="Delete").pack()
 
@@ -181,8 +189,15 @@ class Graphic_Viewer:
         zoom_out_button = Button(zoom, text="-").pack(side="left")
 
 
+
     def draw_point(self, coordinates: Coordinates):
-        self._canvas.create_oval(coordinates.x, coordinates.y, coordinates.x + 3, coordinates + 3, outline="")
+        self._canvas.create_oval(coordinates.x, coordinates.y, coordinates.x + 5, coordinates.y + 5, fill="black", outline="")
+        # self._canvas.create_line(100, 200, 200, 35, fill=COLOR, width=WIDTH)
+        # p = 300
+        # self._canvas.create_oval(300, 300, 300+3, 300+3, fill="black", outline="")
+    
+    def draw_line(self, endpoint1: Coordinates, endpoint2: Coordinates):
+        self._canvas.create_line(endpoint1.x, endpoint1.y, endpoint2.x, endpoint2.y)
 
     def run(self):
         self._main_window.mainloop()

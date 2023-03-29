@@ -21,6 +21,16 @@ class Controller:
         self._display_file.append(point)
         self._drawer.insert_drawable(point)
         self.redraw()
+
+    def create_line(self, x1, y1, x2, y2):
+        name = "Line1"
+        endpoint1 = Coordinates(x1, y1)
+        endpoint2 = Coordinates(x2, y2)
+        line = Line(name, endpoint1, endpoint2)
+        self._display_file.append(line)
+        self._drawer.insert_drawable(line)
+        self.redraw()
+
     
     def redraw(self):
         self._drawer.clear()
