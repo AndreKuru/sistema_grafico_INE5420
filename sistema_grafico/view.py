@@ -17,6 +17,9 @@ class Graphic_Viewer:
     _main_window: Tk = field(default_factory=Tk)
     _canvas: Canvas = field(init=False)
     _display_file_list: Listbox = field(init=False)
+    world_window: Area2d
+    window: Area2d
+    viewport: Area2d
 
     def __post_init__(self):
 

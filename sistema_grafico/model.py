@@ -5,8 +5,13 @@ from numpy import double
 
 @dataclass
 class Coordinates:
-    x: int|double
-    y: int|double
+    x: int|double|float
+    y: int|double|float
+
+@dataclass
+class Area2d:
+    min: Coordinates
+    max: Coordinates
 
 class Drawer(Protocol):
     def draw_point(self, coordinates: Coordinates):
