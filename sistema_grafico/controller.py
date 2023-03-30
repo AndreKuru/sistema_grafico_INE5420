@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 
 from model import Coordinates, Point, Line, Wireframe, Drawable, Area2d
+from math import sin, cos
+from numpy import double, dot
 
 if TYPE_CHECKING:
     from view import Graphic_Viewer
@@ -104,11 +106,61 @@ class Controller:
         self._window.zoom(ammount)
         self.redraw()
 
-    def translate_object(self, name: str, transformation: Coordinates):
-        drawable = self._display_file[name]
+    def translate_object(self, transformation: Coordinates):
         matrix = (
             (1,0,0),
             (0,1,0),
             (transformation.x,transformation.y,1)
             )
-        drawable.transform(matrix)
+        return matrix
+
+    # Not ready yet
+    def scale_object(self, transformation: Coordinates):
+        matrixes = list()
+        drawable = self._display_file[name]
+        center = drawable.calculate_center()
+        translation_to_origin = Coordinates(0, 0) - center
+        matrix = (
+            (1,0,0),
+            (0,1,0),
+            (translation_to_origin.x,translation_to_origin.y,1)
+            )
+        matrixes.append(matrix)
+
+        matrix = (
+            (transformation.x,0,0),
+            (0,transformation.y,0),
+            (0,0,1)
+            )
+        matrixes = dot(matrixes, matrix)
+
+        translation_back = center - Coordinates(0, 0)
+        drawable.translate_object(translation_back)
+
+    def rotate_object_around_origin(self, angle: float):
+        matrix = (
+            (cos(angle),-sin(angle),0),
+            (sin(angle),cos(angle),0),
+            (0,0,1)
+            )
+        return matrix
+
+    def rotate_object(self, angle: float, center: str, name: str):
+        match center:
+            case "o":
+                self.rotate_object_around_origin(angle)
+            case "s":
+                self.rotate_object_around_selected_object(angle, name)
+            case "a":
+                self.rotate_object_around_arbitrary_point(angle, position)
+
+    def transform(self, name: str, transformations: list[tuple[str,int|float,str|int]]):
+        drawable = self._display_file[name]
+        for operation, op1, op2 in transformations:
+            match operation:
+                case "t":
+                    self.translate_object(Coordinates(op1, op2))
+                case "s":
+                    self.scale_object(Coordinates(op1, op2))
+                case "r":
+                    self.rotate_object(op1, op2)
