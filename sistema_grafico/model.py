@@ -46,14 +46,11 @@ class Drawer(Protocol):
         ...
 
 class Drawable(Protocol):
-    name: str
-
     def draw(self, drawer: Drawer):
         ...
 
 @dataclass
 class Point:
-    name: str
     coordinates: Coordinates
 
     def draw(self, drawer: Drawer):
@@ -61,7 +58,6 @@ class Point:
 
 @dataclass
 class Line:
-    name: str
     endpoint1: Coordinates
     endpoint2: Coordinates
 
@@ -70,7 +66,6 @@ class Line:
 
 @dataclass
 class Wireframe:
-    name: str
     vertexes: list[Coordinates]
 
     def draw(self, drawer: Drawer):

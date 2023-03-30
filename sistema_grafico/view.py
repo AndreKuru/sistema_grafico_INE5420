@@ -41,8 +41,8 @@ class Graphic_Viewer:
     def clear(self):
         self._canvas.delete("all")
 
-    def insert_drawable(self, drawable):
-        self._display_file_list.insert("end", drawable.name)
+    def insert_drawable(self, name: str):
+        self._display_file_list.insert("end", name)
 
 
     def ask_coordinates(self, coord_frame):

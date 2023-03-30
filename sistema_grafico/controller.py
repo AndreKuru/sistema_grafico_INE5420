@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class Controller:
-    _display_file: list[Drawable] = field(default_factory=list)
+    _display_file: dict[Drawable] = field(default_factory=dict)
     _drawer: Optional["Graphic_Viewer"] = None
     _world_window: Area2d = Area2d(Coordinates(0, 0), Coordinates(1000, 1000))
     _window: Area2d = Area2d(Coordinates(0, 0), Coordinates(200, 200))
@@ -53,36 +53,47 @@ class Controller:
     def set_drawer(self, drawer: Graphic_Viewer):
         self._drawer = drawer
 
+    def new_name(self, prefix: str):
+        index = 1
+        while True:
+            name = prefix + str(index)
+            if name not in self._display_file:
+                break
+            index += 1
+
+        return name
+        
+
     def create_point(self, x: int, y: int):
-        name = "Point"
-        point = Point(name, Coordinates(x, y))
-        self._display_file.append(point)
-        self._drawer.insert_drawable(point)
+        name = self.new_name("Point")
+        point = Point(Coordinates(x, y))
+        self._display_file[name] = point
+        self._drawer.insert_drawable(name)
         self.redraw()
 
     def create_line(self, x1: int, y1: int, x2: int, y2: int):
-        name = "Line"
+        name = self.new_name("Line")
         endpoint1 = Coordinates(x1, y1)
         endpoint2 = Coordinates(x2, y2)
-        line = Line(name, endpoint1, endpoint2)
-        self._display_file.append(line)
-        self._drawer.insert_drawable(line)
+        line = Line(endpoint1, endpoint2)
+        self._display_file[name] = line
+        self._drawer.insert_drawable(name)
         self.redraw()
 
     def create_wireframe(self, list_x: list(int), list_y: list(int)):
-        name = "Wireframe"
+        name = self.new_name("Wireframe")
         coordinates = list()
         for i in range(len(list_x)):
             coordinate = Coordinates(list_x[i], list_y[i])
             coordinates.append(coordinate)
-        wireframe = Wireframe(name, coordinates)
-        self._display_file.append(wireframe)
-        self._drawer.insert_drawable(wireframe)
+        wireframe = Wireframe(coordinates)
+        self._display_file[name] = wireframe
+        self._drawer.insert_drawable(name)
         self.redraw()
             
     def redraw(self):
         self._drawer.clear()
-        for drawable in self._display_file:
+        for drawable in self._display_file.values():
             drawable.draw(self._drawer)
 
     def pan_window(self, movement: Coordinates):
