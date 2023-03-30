@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from tkinter import Tk, Frame, Canvas, Label, Button, Toplevel, Listbox, Entry, Scrollbar
+from tkinter import Tk, Frame, Canvas, Label, Button, Toplevel, Listbox, Entry, Scrollbar, Menu, ttk, Radiobutton, IntVar
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -172,19 +172,150 @@ class Graphic_Viewer:
         movement = Coordinates(5, 0)
         self.controller.pan_window(movement)
 
+    def display_popup(self, event, popup: Menu):
+        try:
+            print(type(event))
+            popup.tk_popup(event.x_root, event.y_root)
+        finally:
+            popup.grab_release()
+
+    def add_transformation(self,
+                           transform_window: ttk.Notebook, 
+                           translate_x: Entry, 
+                           translate_y: Entry, 
+                           scaling_x: Entry, 
+                           scaling_y: Entry,
+                           angle: Entry,
+                           rotate_in: IntVar,
+                           history: Listbox
+                           ):
+        tab = transform_window.index(transform_window.select())
+        match tab:
+            case 0: # Translate
+                x = str(int(translate_x.get()))
+                y = str(int(translate_y.get()))
+                history.insert("end", "t(" + x + "," + y + ")")
+                
+            case 1: # Scaling
+                x = str(int(scaling_x.get()))
+                y = str(int(scaling_y.get()))
+                history.insert("end", "s(" + x + "," + y + ")")
+
+            case 2: # Rotate
+                a = str(float(angle.get()))
+                rotate_in_index = rotate_in.get()
+
+                match rotate_in_index:
+                    case 1:
+                        rotate_in_option = "o"
+                    case 2:
+                        rotate_in_option = "s"
+                    case 3:
+                        rotate_in_option = "a"
+
+                history.insert("end", "r(" + a + "," + rotate_in_option + ")")
+
+    def apply_transformation(self, history: Listbox):
+        transformations_formatted = list()
+
+        transformations = history.get(0, history.size())
+        for transformation in transformations:
+            operation = transformation.split("(")[0]
+            operands = transformation.split("(")[1]
+            operands = operands.split(")")[0]
+            op1 = operands.split(",")[0]
+            op2 = operands.split(",")[1]
+
+            transformations_formatted.append((operation, op1, op2))
+
+        ... # call controller
+
+
+    def transform_window(self):
+        if not self._display_file_list.curselection():
+            return
+
+        index = self._display_file_list.curselection()[0]
+
+        name_selected = self._display_file_list.get(index)
+
+        transform_window = Toplevel(self._main_window)
+        transform_window.title("Transform")
+
+        transform_options = ttk.Notebook(transform_window)
+
+        traslate_option = ttk.Frame(transform_options)
+        scaling_option = ttk.Frame(transform_options)
+        rotation_option = ttk.Frame(transform_options)
+
+        transform_options.add(traslate_option, text="Translate")
+        transform_options.add(scaling_option, text="Scaling")
+        transform_options.add(rotation_option, text="Rotation")
+
+        transform_options.pack(side="left", expand=1)
+
+        # Traslate
+        translate_x, translate_y = self.ask_coordinates(traslate_option)
+
+        # Scaling
+        scaling_x, scaling_y = self.ask_coordinates(scaling_option)
+
+        # Rotation
+        Label(rotation_option, text="Angle:")
+        angle = Entry(rotation_option, width=6)
+        angle.pack()
+
+        rotate_in = IntVar()
+        ORIGIN = 1
+        SELECTED_OBJECT = 2
+        ARBITRARY_POSITION = 3
+
+        origin = Radiobutton(rotation_option, text="Rotate in origin", variable=rotate_in, value=ORIGIN)
+        origin.pack(anchor="w")
+
+        selected_object = Radiobutton(rotation_option, text="Rotate in self center", variable=rotate_in, value=SELECTED_OBJECT)
+        selected_object.pack(anchor="w")
+
+        arbitrary_position = Radiobutton(rotation_option, text="Rotate in arbitrary position", variable=rotate_in, value=ARBITRARY_POSITION)
+        arbitrary_position.pack(anchor="w")
+
+        # Notebook end
+
+        transformations_to_apply = Frame(transform_window)
+        transformations_to_apply.pack(side="right")
+
+        transformations_history = Listbox(transformations_to_apply)
+        transformations_history.pack()
+
+        transformations_buttons = Frame(transformations_to_apply)
+        transformations_buttons.pack()
+
+        Button(transformations_buttons, 
+               command=lambda : self.add_transformation(transform_options, 
+                                                        translate_x, 
+                                                        translate_y, 
+                                                        scaling_x, 
+                                                        scaling_y,
+                                                        angle,
+                                                        rotate_in,
+                                                        transformations_history),
+               text="Add").pack(side="left")
+
+        Button(transformations_buttons, 
+               command=lambda : self.apply_transformation(transformations_history),
+               text="Apply").pack(side="right")
+
+
+
     def init_window_function(self):
 
         window_function = Frame(self._main_window, highlightbackground="grey", highlightthickness=2)
         window_function.pack(side="left")
 
         Label(window_function, text="Functions menu").pack()
-        '''
-        window_function = Toplevel(self._main_window)
-        window_function.title("Window Functions")
-        '''
 
         #Display File
-        display_file_frame = Frame(window_function, highlightbackground="grey", highlightthickness=1)
+        display_file_frame = Frame(window_function, highlightbackground="grey", highlightthickness=1,)
         display_file_frame.pack()
 
         Label(display_file_frame, text="Display File").pack(side="top")
@@ -192,7 +323,7 @@ class Graphic_Viewer:
         display_file_inner_frame = Frame(display_file_frame)
         display_file_inner_frame.pack()
 
-        display_file_list = Listbox(display_file_inner_frame)
+        display_file_list = Listbox(display_file_inner_frame, selectmode="SINGLE")
         display_file_list.pack(side="left")
 
         display_file_scroll = Scrollbar(display_file_inner_frame)
@@ -203,7 +334,14 @@ class Graphic_Viewer:
 
         self._display_file_list = display_file_list
 
-        delete = Button(display_file_frame, text="Delete").pack()
+        display_file_popup = Menu(display_file_frame, tearoff=0)
+
+        # display_file_popup.add_command(label="Delete")
+        # display_file_popup.add_separator
+        display_file_popup.add_command(label="Transform", 
+                                       command=lambda : self.transform_window())
+    
+        display_file_list.bind("<Button-3>", lambda event: self.display_popup(event, display_file_popup))
 
         create_frame = Frame(display_file_frame)
         create_frame.pack()
