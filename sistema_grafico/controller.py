@@ -103,3 +103,12 @@ class Controller:
     def zoom(self, ammount: int):
         self._window.zoom(ammount)
         self.redraw()
+
+    def translate_object(self, name: str, transformation: Coordinates):
+        drawable = self._display_file[name]
+        matrix = (
+            (1,0,0),
+            (0,1,0),
+            (transformation.x,transformation.y,1)
+            )
+        drawable.transform(matrix)
