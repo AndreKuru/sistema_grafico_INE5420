@@ -156,6 +156,22 @@ class Graphic_Viewer:
                command=lambda : self.create_wireframe(listbox_x, listbox_y), 
                text="Create").pack()
 
+    def move_up(self):
+        movement = Coordinates(0, 5)
+        self.controller.pan_window(movement)
+
+    def move_down(self):
+        movement = Coordinates(0, -5)
+        self.controller.pan_window(movement)
+
+    def move_left(self):
+        movement = Coordinates(-5, 0)
+        self.controller.pan_window(movement)
+
+    def move_right(self):
+        movement = Coordinates(5, 0)
+        self.controller.pan_window(movement)
+
     def init_window_function(self):
 
         window_function = Frame(self._main_window, highlightbackground="grey", highlightthickness=2)
@@ -205,10 +221,18 @@ class Graphic_Viewer:
         directions = Frame(window_control_frame)
         directions.pack()
 
-        up_button = Button(directions, text="Up").pack(side="top")
-        down_button = Button(directions, text="Down").pack(side="bottom")
-        left_button = Button(directions, text="Left").pack(side="left")
-        right_button = Button(directions, text="Right").pack(side="right")
+        Button(directions, 
+               command=lambda : self.move_up(), 
+               text="Up").pack(side="top")
+        Button(directions, 
+               command=lambda : self.move_down(), 
+               text="Down").pack(side="bottom")
+        Button(directions, 
+               command=lambda : self.move_left(), 
+               text="Left").pack(side="left")
+        Button(directions, 
+               command=lambda : self.move_right(), 
+               text="Right").pack(side="right")
 
         #Zoom
         zoom = Frame(window_function)

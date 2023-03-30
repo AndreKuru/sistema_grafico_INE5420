@@ -12,7 +12,7 @@ class Controller:
     _display_file: list[Drawable] = field(default_factory=list)
     _drawer: Optional["Graphic_Viewer"] = None
     _world_window: Area2d = Area2d(Coordinates(0, 0), Coordinates(1000, 1000))
-    _window: Area2d = Area2d(Coordinates(0, 0), Coordinates(1000, 1000))
+    _window: Area2d = Area2d(Coordinates(0, 0), Coordinates(200, 200))
 
     def transform_window_to_viewport(self, drawable_in_window: Coordinates):
         x_w_max = self._window.max.x
@@ -84,3 +84,7 @@ class Controller:
         self._drawer.clear()
         for drawable in self._display_file:
             drawable.draw(self._drawer)
+
+    def pan_window(self, movement: Coordinates):
+        self._window.move(movement)
+        self.redraw()
