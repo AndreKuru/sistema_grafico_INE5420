@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from tkinter import Tk, Frame, Canvas, Label, Button, Toplevel, Listbox, Entry, Menu
+from tkinter import Tk, Frame, Canvas, Label, Button, Toplevel, Listbox, Entry, Scrollbar
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -187,9 +187,19 @@ class Graphic_Viewer:
         display_file_frame = Frame(window_function, highlightbackground="grey", highlightthickness=1)
         display_file_frame.pack()
 
-        display_file_label = Label(display_file_frame, text="Display File").pack()
-        display_file_list = Listbox(display_file_frame)
-        display_file_list.pack()
+        Label(display_file_frame, text="Display File").pack(side="top")
+
+        display_file_inner_frame = Frame(display_file_frame)
+        display_file_inner_frame.pack()
+
+        display_file_list = Listbox(display_file_inner_frame)
+        display_file_list.pack(side="left")
+
+        display_file_scroll = Scrollbar(display_file_inner_frame)
+        display_file_scroll.pack(side="right")
+
+        display_file_list.config(yscrollcommand=display_file_scroll.set)
+        display_file_scroll.config(command=display_file_list.yview)
 
         self._display_file_list = display_file_list
 
