@@ -88,3 +88,7 @@ class Controller:
     def pan_window(self, movement: Coordinates):
         self._window.move(movement)
         self.redraw()
+
+    def zoom(self, ammount: int):
+        self._window.zoom(ammount)
+        self.redraw()
