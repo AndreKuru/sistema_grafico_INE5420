@@ -56,6 +56,9 @@ class Drawable(Protocol):
     def transform(self, matrix: tuple[tuple[int|float|double]]):
         ...
 
+    def calculate_center(self):
+        ...
+
 @dataclass
 class Point:
     coordinates: Coordinates
@@ -65,6 +68,10 @@ class Point:
 
     def transform(self, matrix: tuple[tuple[int|float|double]]):
         self.coordinates = transform(self.coordinates, matrix)
+
+    def calculate_center(self):
+        center = self.coordinates
+        return center
 
 @dataclass
 class Line:
@@ -77,6 +84,12 @@ class Line:
     def transform(self, matrix: tuple[tuple[int|float|double]]):
         self.endpoint1 = transform(self.endpoint1, matrix)
         self.endpoint2 = transform(self.endpoint2, matrix)
+
+    def calculate_center(self):
+        x_center = (self.endpoint1.x + self.endpoint2.x) / 2
+        y_center = (self.endpoint1.y + self.endpoint2.y) / 2
+        center = Coordinates(x_center, y_center)
+        return center
 
 @dataclass
 class Wireframe:
