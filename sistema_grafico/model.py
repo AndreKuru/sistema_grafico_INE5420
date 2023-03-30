@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Protocol
 
-from numpy import double
+from numpy import double, dot
 
 @dataclass
 class Coordinates:
@@ -44,8 +44,16 @@ class Drawer(Protocol):
     def draw_line(self, endpoint1: Coordinates, endpoint2: Coordinates):
         ...
 
+def transform(coordinates: Coordinates, matrix: tuple[tuple[int|float|double]]):
+    p = (coordinates.x, coordinates.y, 1)
+    new_p = dot(p, matrix)
+    return Coordinates(new_p[0], new_p[1])
+
 class Drawable(Protocol):
     def draw(self, drawer: Drawer):
+        ...
+
+    def transform(self, matrix: tuple[tuple[int|float|double]]):
         ...
 
 @dataclass
@@ -55,6 +63,9 @@ class Point:
     def draw(self, drawer: Drawer):
         drawer.draw_point(self.coordinates)
 
+    def transform(self, matrix: tuple[tuple[int|float|double]]):
+        self.coordinates = transform(self.coordinates, matrix)
+
 @dataclass
 class Line:
     endpoint1: Coordinates
@@ -62,6 +73,10 @@ class Line:
 
     def draw(self, drawer: Drawer):
         drawer.draw_line(self.endpoint1, self.endpoint2)
+
+    def transform(self, matrix: tuple[tuple[int|float|double]]):
+        self.endpoint1 = transform(self.endpoint1, matrix)
+        self.endpoint2 = transform(self.endpoint2, matrix)
 
 @dataclass
 class Wireframe:
@@ -72,3 +87,7 @@ class Wireframe:
             for i in range(len(self.vertexes)-1):
                 drawer.draw_line(self.vertexes[i], self.vertexes[i+1])
             drawer.draw_line(self.vertexes[-1], self.vertexes[0])
+
+    def transform(self, matrix: tuple[tuple[int|float|double]]):
+        for vertex in self.vertexes:
+            vertex = transform(vertex, matrix)
