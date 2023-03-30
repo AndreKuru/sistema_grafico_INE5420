@@ -104,3 +104,46 @@ class Wireframe:
     def transform(self, matrix: tuple[tuple[int|float|double]]):
         for vertex in self.vertexes:
             vertex = transform(vertex, matrix)
+
+    # All functions below implement the centroid calculus
+
+    def calculate_common_elements(self, i: int):
+        actual_vertex = self.vertexes[i]
+        next_vertex = self.vertexes[i+1]
+        common_expression = (
+            (actual_vertex.x * next_vertex.y) - (next_vertex.x * actual_vertex.y))
+
+        return actual_vertex, next_vertex, common_expression
+
+    def calculate_wireframe_signed_area(self):
+        shoelace_sum = 0
+    
+        for i in range(len(self.vertexes) - 1):
+            actual_vertex, next_vertex, common_expression = self.calculate_common_elements(i)
+            shoelace_sum += common_expression
+        
+        wireframe_signed_area = shoelace_sum * 0.5
+
+        return wireframe_signed_area
+
+    def calculate_center_coordinate(self, coordinate: int|double|float):
+        partial_sum = 0
+        
+        for i in range(len(self.vertexes) - 1):
+            actual_vertex, next_vertex, common_expression = self.calculate_common_elements(i)
+
+            partial_sum += (actual_vertex.coordinate + next_vertex.coordinate) * common_expression
+
+        center_coordinate = partial_sum / (6 * self.calculate_wireframe_signed_area())
+
+        return center_coordinate
+
+    def calculate_center_x(self):
+        return self.calculate_center_coordinate(x)
+
+    def calculate_center_y(self):
+        return self.calculate_center_coordinate(y)
+
+    def calculate_center(self):
+        center = Coordinates(self.calculate_center_x(), self.calculate_center_y())
+        return center
