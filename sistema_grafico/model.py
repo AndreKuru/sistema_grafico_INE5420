@@ -18,10 +18,9 @@ class Coordinates:
         y = self.y - other.y
         return Coordinates(x, y)
 
-    def __add__ (self, other: int|double|float):
-        x = self.x + other
-        y = self.y + other
-        return Coordinates(x, y)
+    def add_scalar (self, other: int|double|float):
+        self.x = self.x + other
+        self.y = self.y + other
 
 @dataclass
 class Area2d:
@@ -36,7 +35,7 @@ class Area2d:
         self.max = self.max + movement
 
     def zoom(self, ammount: int):
-        self.max = self.max + ammount
+        self.max.add_scalar(ammount)
 
 class Drawer(Protocol):
     def draw_point(self, coordinates: Coordinates):
