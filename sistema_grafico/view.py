@@ -24,8 +24,8 @@ class Graphic_Viewer:
         viewport_frame = Frame(self._main_window)
         viewport_frame.pack(side="right")
 
-        width = 760
-        height = 540
+        width = 700
+        height = 700
         self._viewport = Area2d(Coordinates(0, 0), Coordinates(width, height))
         self._canvas = Canvas(viewport_frame, width=width, height=height, background="white", border=10, relief="raised")
         self._canvas.pack()
@@ -206,11 +206,11 @@ class Graphic_Viewer:
                 rotate_in_index = rotate_in.get()
 
                 match rotate_in_index:
-                    case 1:
+                    case ORIGIN:
                         rotate_in_option = "o"
-                    case 2:
+                    case SELECTED_OBJECT:
                         rotate_in_option = "s"
-                    case 3:
+                    case ARBITRARY_POSITION:
                         rotate_in_option = "a"
 
                 history.insert("end", "r(" + a + "," + rotate_in_option + ")")
@@ -230,6 +230,10 @@ class Graphic_Viewer:
 
         ... # call controller
 
+
+    def ask_arbitrary_point(self, rotation_option: ttk.Frame):
+        
+        arbitrary_point.pack()
 
     def transform_window(self):
         if not self._display_file_list.curselection():
@@ -261,7 +265,7 @@ class Graphic_Viewer:
         scaling_x, scaling_y = self.ask_coordinates(scaling_option)
 
         # Rotation
-        Label(rotation_option, text="Angle:")
+        Label(rotation_option, text="Angle:").pack()
         angle = Entry(rotation_option, width=6)
         angle.pack()
 
@@ -278,6 +282,12 @@ class Graphic_Viewer:
 
         arbitrary_position = Radiobutton(rotation_option, text="Rotate in arbitrary position", variable=rotate_in, value=ARBITRARY_POSITION)
         arbitrary_position.pack(anchor="w")
+
+        rotate_in_index = rotate_in.get()
+
+        arbitrary_point = Frame(rotation_option)
+        arbitrary_point_x, arbitrary_point_y = self.ask_coordinates(arbitrary_point)
+
 
         # Notebook end
 
