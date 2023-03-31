@@ -106,7 +106,7 @@ class Controller:
         self._window.zoom(ammount)
         self.redraw()
 
-    def translate_object(self, transformation: Coordinates):
+    def translate(self, transformation: Coordinates):
         matrix = (
             (1,0,0),
             (0,1,0),
@@ -114,30 +114,25 @@ class Controller:
             )
         return matrix
 
-    # Not ready yet
-    def scale_object(self, transformation: Coordinates):
-        matrixes = list()
+    def scale(self, transformation: Coordinates, name: str):
         drawable = self._display_file[name]
         center = drawable.calculate_center()
         translation_to_origin = Coordinates(0, 0) - center
-        matrix = (
-            (1,0,0),
-            (0,1,0),
-            (translation_to_origin.x,translation_to_origin.y,1)
-            )
-        matrixes.append(matrix)
+        resulting_matrix = self.translate(translation_to_origin)
 
         matrix = (
             (transformation.x,0,0),
             (0,transformation.y,0),
             (0,0,1)
             )
-        matrixes = dot(matrixes, matrix)
+        resulting_matrix = dot(resulting_matrix, matrix)
 
-        translation_back = center - Coordinates(0, 0)
-        drawable.translate_object(translation_back)
+        matrix = self.translate(center)
+        resulting_matrix = dot(resulting_matrix, matrix)
 
-    def rotate_object_around_origin(self, angle: float):
+        return resulting_matrix
+
+    def rotate_around_origin(self, angle: float):
         matrix = (
             (cos(angle),-sin(angle),0),
             (sin(angle),cos(angle),0),
@@ -145,22 +140,53 @@ class Controller:
             )
         return matrix
 
-    def rotate_object(self, angle: float, center: str, name: str):
+    def rotate_around_arbitrary_point(self, angle: float, position: Coordinates):
+        translation_to_origin = Coordinates(0, 0) - position
+        resulting_matrix = self.translate(translation_to_origin)
+
+        matrix = self.rotate_around_origin(angle)
+        resulting_matrix = dot(resulting_matrix, matrix)
+
+        matrix = self.translate(position)
+        resulting_matrix = dot(resulting_matrix, matrix)
+
+        return resulting_matrix
+
+    def rotate_around_selected_drawable(self, angle: float, name: str):
+        drawable = self._display_file[name]
+        center = drawable.calculate_center()
+        return self.rotate_around_arbitrary_point(angle, center)
+
+    def rotate(self, angle: float, center: str, position: Coordinates, name: str):
         match center:
             case "o":
-                self.rotate_object_around_origin(angle)
+                self.rotate_around_origin(angle)
             case "s":
-                self.rotate_object_around_selected_object(angle, name)
+                self.rotate_around_selected_drawable(angle, name)
             case "a":
-                self.rotate_object_around_arbitrary_point(angle, position)
+                self.rotate_around_arbitrary_point(angle, position)
 
-    def transform(self, name: str, transformations: list[tuple[str,int|float,str|int]]):
-        drawable = self._display_file[name]
-        for operation, op1, op2 in transformations:
+    def transform(self, transformations: list[tuple[str,int|float,str|int],int|None,int|None], name: str):
+        resulting_matrix = (
+            (1,0,0),
+            (0,1,0),
+            (0,0,1)
+            )
+        for operation, op1, op2, x, y in transformations:
             match operation:
                 case "t":
-                    self.translate_object(Coordinates(op1, op2))
+                    matrix = self.translate(Coordinates(op1, op2))
                 case "s":
-                    self.scale_object(Coordinates(op1, op2))
+                    matrix = self.scale(Coordinates(op1, op2), name)
                 case "r":
-                    self.rotate_object(op1, op2)
+                    if x is not None:
+                        position = Coordinates(x, y)
+                    else:
+                        position = None
+                    matrix = self.rotate(op1, op2, position, name)
+
+            resulting_matrix = dot(resulting_matrix, matrix)
+
+        drawable = self._display_file[name]
+        drawable.transform(resulting_matrix)
+        self.redraw()

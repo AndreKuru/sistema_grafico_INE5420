@@ -44,7 +44,7 @@ class Drawer(Protocol):
     def draw_line(self, endpoint1: Coordinates, endpoint2: Coordinates):
         ...
 
-def transform(coordinates: Coordinates, matrix: tuple[tuple[int|float|double]]):
+def transform(coordinates: Coordinates, matrix: array[array[int|double|float]]):
     p = (coordinates.x, coordinates.y, 1)
     new_p = dot(p, matrix)
     return Coordinates(new_p[0], new_p[1])
@@ -53,7 +53,7 @@ class Drawable(Protocol):
     def draw(self, drawer: Drawer):
         ...
 
-    def transform(self, matrix: tuple[tuple[int|float|double]]):
+    def transform(self, matrix: array[array[int|double|float]]):
         ...
 
     def calculate_center(self):
@@ -66,7 +66,7 @@ class Point:
     def draw(self, drawer: Drawer):
         drawer.draw_point(self.coordinates)
 
-    def transform(self, matrix: tuple[tuple[int|float|double]]):
+    def transform(self, matrix: array[array[int|double|float]]):
         self.coordinates = transform(self.coordinates, matrix)
 
     def calculate_center(self):
@@ -81,7 +81,7 @@ class Line:
     def draw(self, drawer: Drawer):
         drawer.draw_line(self.endpoint1, self.endpoint2)
 
-    def transform(self, matrix: tuple[tuple[int|float|double]]):
+    def transform(self, matrix: array[array[int|double|float]]):
         self.endpoint1 = transform(self.endpoint1, matrix)
         self.endpoint2 = transform(self.endpoint2, matrix)
 
@@ -101,7 +101,7 @@ class Wireframe:
                 drawer.draw_line(self.vertexes[i], self.vertexes[i+1])
             drawer.draw_line(self.vertexes[-1], self.vertexes[0])
 
-    def transform(self, matrix: tuple[tuple[int|float|double]]):
+    def transform(self, matrix: array[array[int|double|float]]):
         for vertex in self.vertexes:
             vertex = transform(vertex, matrix)
 
