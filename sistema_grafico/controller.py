@@ -172,14 +172,19 @@ class Controller:
             (0,1,0),
             (0,0,1)
             )
-        for operation, op1, op2, x, y in transformations:
+        for i in range(len(transformations)):
+            operation = transformations[i][0]
+            op1 = transformations[i][1]
+            op2 = transformations[i][2]
             match operation:
                 case "t":
                     matrix = self.translate(Coordinates(op1, op2))
                 case "s":
                     matrix = self.scale(Coordinates(op1, op2), name)
                 case "r":
-                    if x is not None:
+                    if op2 == "a":
+                        x = transformations[i][3]
+                        y = transformations[i][4]
                         position = Coordinates(x, y)
                     else:
                         position = None

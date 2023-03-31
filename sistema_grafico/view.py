@@ -11,6 +11,10 @@ from model import Coordinates, Area2d
 WIDTH = 5
 COLOR = "green"
 
+ORIGIN = 1
+SELECTED_OBJECT = 2
+ARBITRARY_POSITION = 3
+
 @dataclass
 class Graphic_Viewer:
     controller: Controller
@@ -187,6 +191,8 @@ class Graphic_Viewer:
                            scaling_y: Entry,
                            angle: Entry,
                            rotate_in: IntVar,
+                           arbitrary_point_x: Entry,
+                           arbitrary_point_y: Entry,
                            history: Listbox
                            ):
         tab = transform_window.index(transform_window.select())
@@ -206,16 +212,20 @@ class Graphic_Viewer:
                 rotate_in_index = rotate_in.get()
 
                 match rotate_in_index:
-                    case ORIGIN:
+                    case 1: # ORIGIN:
                         rotate_in_option = "o"
-                    case SELECTED_OBJECT:
+                        history.insert("end", "r(" + a + "," + rotate_in_option + ")")
+                    case 2: # SELECTED_OBJECT:
                         rotate_in_option = "s"
-                    case ARBITRARY_POSITION:
+                        history.insert("end", "r(" + a + "," + rotate_in_option + ")")
+                    case 3: #ARBITRARY_POSITION:
                         rotate_in_option = "a"
+                        x = str(int(arbitrary_point_x.get()))
+                        y = str(int(arbitrary_point_y.get()))
+                        history.insert("end", "r(" + a + "," + rotate_in_option + "," + x + "," + y + ")")
 
-                history.insert("end", "r(" + a + "," + rotate_in_option + ")")
 
-    def apply_transformation(self, history: Listbox):
+    def apply_transformation(self, history: Listbox, name: str):
         transformations_formatted = list()
 
         transformations = history.get(0, history.size())
@@ -225,15 +235,25 @@ class Graphic_Viewer:
             operands = operands.split(")")[0]
             op1 = operands.split(",")[0]
             op2 = operands.split(",")[1]
+            if op2 == "a":
+                x = operands.split(",")[2]
+                y = operands.split(",")[3]
 
-            transformations_formatted.append((operation, op1, op2))
+                transformations_formatted.append((operation, op1, op2, x, y))
+            else:
+                if operation == "r":
+                    transformations_formatted.append((operation, float(op1), op2))
+                else:
+                    transformations_formatted.append((operation, int(op1), int(op2)))
 
-        ... # call controller
+        self.controller.transform(transformations_formatted, name)
 
 
-    def ask_arbitrary_point(self, rotation_option: ttk.Frame):
-        
+    def ask_arbitrary_point(self, arbitrary_point: ttk.Frame):
         arbitrary_point.pack()
+
+    def unask_arbitrary_point(self, arbitrary_point: ttk.Frame):
+        arbitrary_point.pack_forget()
 
     def transform_window(self):
         if not self._display_file_list.curselection():
@@ -270,9 +290,6 @@ class Graphic_Viewer:
         angle.pack()
 
         rotate_in = IntVar()
-        ORIGIN = 1
-        SELECTED_OBJECT = 2
-        ARBITRARY_POSITION = 3
 
         origin = Radiobutton(rotation_option, text="Rotate in origin", variable=rotate_in, value=ORIGIN)
         origin.pack(anchor="w")
@@ -282,8 +299,6 @@ class Graphic_Viewer:
 
         arbitrary_position = Radiobutton(rotation_option, text="Rotate in arbitrary position", variable=rotate_in, value=ARBITRARY_POSITION)
         arbitrary_position.pack(anchor="w")
-
-        rotate_in_index = rotate_in.get()
 
         arbitrary_point = Frame(rotation_option)
         arbitrary_point_x, arbitrary_point_y = self.ask_coordinates(arbitrary_point)
@@ -308,11 +323,13 @@ class Graphic_Viewer:
                                                         scaling_y,
                                                         angle,
                                                         rotate_in,
+                                                        arbitrary_point_x,
+                                                        arbitrary_point_y,
                                                         transformations_history),
                text="Add").pack(side="left")
 
         Button(transformations_buttons, 
-               command=lambda : self.apply_transformation(transformations_history),
+               command=lambda : self.apply_transformation(transformations_history, name_selected),
                text="Apply").pack(side="right")
 
 

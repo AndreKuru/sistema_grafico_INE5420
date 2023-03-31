@@ -126,24 +126,17 @@ class Wireframe:
 
         return wireframe_signed_area
 
-    def calculate_center_coordinate(self, coordinate: int|double|float):
-        partial_sum = 0
+    def calculate_center(self):
+        center_x = 0
+        center_y = 0
         
         for i in range(len(self.vertexes) - 1):
             actual_vertex, next_vertex, common_expression = self.calculate_common_elements(i)
 
-            partial_sum += (actual_vertex.coordinate + next_vertex.coordinate) * common_expression
+            center_x += (actual_vertex.x + next_vertex.x) * common_expression
+            center_y += (actual_vertex.y + next_vertex.y) * common_expression
 
-        center_coordinate = partial_sum / (6 * self.calculate_wireframe_signed_area())
+        center_x = center_x / (6 * self.calculate_wireframe_signed_area())
+        center_y = center_y / (6 * self.calculate_wireframe_signed_area())
 
-        return center_coordinate
-
-    def calculate_center_x(self):
-        return self.calculate_center_coordinate(x)
-
-    def calculate_center_y(self):
-        return self.calculate_center_coordinate(y)
-
-    def calculate_center(self):
-        center = Coordinates(self.calculate_center_x(), self.calculate_center_y())
-        return center
+        return Coordinates(center_x, center_y)
