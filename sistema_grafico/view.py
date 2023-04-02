@@ -105,8 +105,8 @@ class Graphic_Viewer:
         entry_x, entry_y = self.ask_coordinates(point_coord_frame)
 
         create_point_button = Button(point_coord_frame, 
-                                     command=lambda :self.controller.create_point(int(entry_x.get()), 
-                                                                                  int(entry_y.get())),
+                                     command=lambda :self.controller.create_point(float(entry_x.get()), 
+                                                                                  float(entry_y.get())),
                                      text="Create").pack()
 
     # Creation of line
@@ -128,20 +128,20 @@ class Graphic_Viewer:
         x2_entry, y2_entry = self.ask_coordinates(line_coord_frame)
 
         Button(line_coord_frame, 
-               command=lambda : self.controller.create_line(int(x1_entry.get()),
-                                                            int(y1_entry.get()),
-                                                            int(x2_entry.get()),
-                                                            int(y2_entry.get())),
+               command=lambda : self.controller.create_line(float(x1_entry.get()),
+                                                            float(y1_entry.get()),
+                                                            float(x2_entry.get()),
+                                                            float(y2_entry.get())),
                text="Create").pack()
 
     def create_wireframe(self, listbox_x: Listbox, listbox_y: Listbox):
         all_x = list()
         for x in listbox_x.get(0, listbox_x.size()):
-            all_x.append(int(x))
+            all_x.append(float(x))
 
         all_y = list()
         for y in listbox_y.get(0, listbox_x.size()):
-            all_y.append(int(y))
+            all_y.append(float(y))
 
         self.controller.create_wireframe(all_x, all_y)
 
@@ -198,13 +198,13 @@ class Graphic_Viewer:
         tab = transform_window.index(transform_window.select())
         match tab:
             case 0: # Translate
-                x = str(int(translate_x.get()))
-                y = str(int(translate_y.get()))
+                x = str(float(translate_x.get()))
+                y = str(float(translate_y.get()))
                 history.insert("end", "t(" + x + "," + y + ")")
                 
             case 1: # Scaling
-                x = str(int(scaling_x.get()))
-                y = str(int(scaling_y.get()))
+                x = str(float(scaling_x.get()))
+                y = str(float(scaling_y.get()))
                 history.insert("end", "s(" + x + "," + y + ")")
 
             case 2: # Rotate
@@ -220,8 +220,8 @@ class Graphic_Viewer:
                         history.insert("end", "r(" + a + "," + rotate_in_option + ")")
                     case 3: #ARBITRARY_POSITION:
                         rotate_in_option = "a"
-                        x = str(int(arbitrary_point_x.get()))
-                        y = str(int(arbitrary_point_y.get()))
+                        x = str(float(arbitrary_point_x.get()))
+                        y = str(float(arbitrary_point_y.get()))
                         history.insert("end", "r(" + a + "," + rotate_in_option + "," + x + "," + y + ")")
 
 
@@ -244,7 +244,7 @@ class Graphic_Viewer:
                 if operation == "r":
                     transformations_formatted.append((operation, float(op1), op2))
                 else:
-                    transformations_formatted.append((operation, int(op1), int(op2)))
+                    transformations_formatted.append((operation, float(op1), float(op2)))
 
         history.delete(0, history.size() - 1)
         self.controller.transform(transformations_formatted, name)

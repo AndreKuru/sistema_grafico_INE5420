@@ -114,9 +114,7 @@ class Controller:
             )
         return matrix
 
-    def scale(self, transformation: Coordinates, name: str):
-        drawable = self._display_file[name]
-        center = drawable.calculate_center()
+    def scale(self, transformation: Coordinates, center: Coordinates):
         translation_to_origin = Coordinates(0, 0) - center
         resulting_matrix = self.translate(translation_to_origin)
 
@@ -152,31 +150,25 @@ class Controller:
 
         return resulting_matrix
 
-    def rotate_around_selected_drawable(self, angle: float, name: str):
-        drawable = self._display_file[name]
-        center = drawable.calculate_center()
-        return self.rotate_around_arbitrary_point(angle, center)
-
-    def rotate(self, angle: float, center: str, position: Coordinates, name: str):
+    def rotate(self, angle: float, around: str, position: Coordinates):
         angle = radians(angle)
 
-        match center:
+        match around:
             case "o":
                 return self.rotate_around_origin(angle)
-            case "s":
-                return self.rotate_around_selected_drawable(angle, name)
-            case "a":
+            case _:
                 return self.rotate_around_arbitrary_point(angle, position)
 
     def transform(self, transformations: list[tuple[str,int|float,str|int],int|None,int|None], name: str):
-        # resulting_matrix = (
-        #     (1,0,0),
-        #     (0,1,0),
-        #     (0,0,1)
-        #     )
+        resulting_matrix = (
+            (1,0,0),
+            (0,1,0),
+            (0,0,1)
+            )
         drawable = self._display_file[name]
 
         center = drawable.calculate_center()
+        center = Point(center)
 
         for i in range(len(transformations)):
             operation = transformations[i][0]
@@ -186,16 +178,17 @@ class Controller:
                 case "t":
                     matrix = self.translate(Coordinates(op1, op2))
                 case "s":
-                    matrix = self.scale(Coordinates(op1, op2), name, center)
+                    matrix = self.scale(Coordinates(op1, op2), center.coordinates)
                 case "r":
                     if op2 == "a":
                         x = transformations[i][3]
                         y = transformations[i][4]
                         position = Coordinates(x, y)
                     else:
-                        position = center
-                    matrix = self.rotate(op1, op2, position, name)
+                        position = center.coordinates
+                    matrix = self.rotate(op1, op2, position)
 
-            # resulting_matrix = dot(resulting_matrix, matrix)
-            drawable.transform(matrix)
+            center.transform(matrix)
+            resulting_matrix = dot(resulting_matrix, matrix)
+        drawable.transform(resulting_matrix)
         self.redraw()
