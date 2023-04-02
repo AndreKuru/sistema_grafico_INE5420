@@ -160,11 +160,11 @@ class Controller:
     def rotate(self, angle: float, center: str, position: Coordinates, name: str):
         match center:
             case "o":
-                self.rotate_around_origin(angle)
+                return self.rotate_around_origin(angle)
             case "s":
-                self.rotate_around_selected_drawable(angle, name)
+                return self.rotate_around_selected_drawable(angle, name)
             case "a":
-                self.rotate_around_arbitrary_point(angle, position)
+                return self.rotate_around_arbitrary_point(angle, position)
 
     def transform(self, transformations: list[tuple[str,int|float,str|int],int|None,int|None], name: str):
         resulting_matrix = (

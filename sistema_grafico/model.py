@@ -102,8 +102,10 @@ class Wireframe:
             drawer.draw_line(self.vertexes[-1], self.vertexes[0])
 
     def transform(self, matrix: list[list[int|double|float]]):
+        new_vertexes = list()
         for vertex in self.vertexes:
-            vertex = transform(vertex, matrix)
+            new_vertexes.append(transform(vertex, matrix))
+        self.vertexes = new_vertexes
 
     # All functions below implement the centroid calculus
 
