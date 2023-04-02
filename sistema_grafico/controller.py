@@ -169,11 +169,15 @@ class Controller:
                 return self.rotate_around_arbitrary_point(angle, position)
 
     def transform(self, transformations: list[tuple[str,int|float,str|int],int|None,int|None], name: str):
-        resulting_matrix = (
-            (1,0,0),
-            (0,1,0),
-            (0,0,1)
-            )
+        # resulting_matrix = (
+        #     (1,0,0),
+        #     (0,1,0),
+        #     (0,0,1)
+        #     )
+        drawable = self._display_file[name]
+
+        center = drawable.calculate_center()
+
         for i in range(len(transformations)):
             operation = transformations[i][0]
             op1 = transformations[i][1]
@@ -182,18 +186,16 @@ class Controller:
                 case "t":
                     matrix = self.translate(Coordinates(op1, op2))
                 case "s":
-                    matrix = self.scale(Coordinates(op1, op2), name)
+                    matrix = self.scale(Coordinates(op1, op2), name, center)
                 case "r":
                     if op2 == "a":
                         x = transformations[i][3]
                         y = transformations[i][4]
                         position = Coordinates(x, y)
                     else:
-                        position = None
+                        position = center
                     matrix = self.rotate(op1, op2, position, name)
 
-            resulting_matrix = dot(resulting_matrix, matrix)
-
-        drawable = self._display_file[name]
-        drawable.transform(resulting_matrix)
+            # resulting_matrix = dot(resulting_matrix, matrix)
+            drawable.transform(matrix)
         self.redraw()
