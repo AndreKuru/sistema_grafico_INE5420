@@ -107,38 +107,13 @@ class Wireframe:
             new_vertexes.append(transform(vertex, matrix))
         self.vertexes = new_vertexes
 
-    # All functions below implement the centroid calculus
-
-    def calculate_common_elements(self, i: int):
-        actual_vertex = self.vertexes[i]
-        next_vertex = self.vertexes[i+1]
-        common_expression = (
-            (actual_vertex.x * next_vertex.y) - (next_vertex.x * actual_vertex.y))
-
-        return actual_vertex, next_vertex, common_expression
-
-    def calculate_wireframe_signed_area(self):
-        shoelace_sum = 0
-    
-        for i in range(len(self.vertexes) - 1):
-            actual_vertex, next_vertex, common_expression = self.calculate_common_elements(i)
-            shoelace_sum += common_expression
-        
-        wireframe_signed_area = shoelace_sum * 0.5
-
-        return wireframe_signed_area
-
     def calculate_center(self):
         center_x = 0
         center_y = 0
-        
-        for i in range(len(self.vertexes) - 1):
-            actual_vertex, next_vertex, common_expression = self.calculate_common_elements(i)
-
-            center_x += (actual_vertex.x + next_vertex.x) * common_expression
-            center_y += (actual_vertex.y + next_vertex.y) * common_expression
-
-        center_x = center_x / (6 * self.calculate_wireframe_signed_area())
-        center_y = center_y / (6 * self.calculate_wireframe_signed_area())
-
-        return Coordinates(center_x, center_y)
+        for vertex in self.vertexes:
+            center_x += vertex.x
+            center_y += vertex.y
+        center_x = center_x / len(self.vertexes)
+        center_y = center_y / len(self.vertexes)
+        center = Coordinates(center_x, center_y)
+        return center
