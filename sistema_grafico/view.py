@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from controller import Controller
 
-from model import Coordinates, Area2d
+from model import Coordinates, Area2d, Color
 
 WIDTH = 5
 COLOR = "green"
@@ -94,6 +94,33 @@ class Graphic_Viewer:
 
         return all_x, all_y
 
+    def create_color(self, parent: Frame)-> ttk.Combobox:
+        predefinied_colors = ["Black", "Red", "Green", "Blue", "Cyan", "Yellow", "Magenta"]
+         
+        Color_picked = ttk.Combobox(parent, values= predefinied_colors, state="readonly")
+        Color_picked.set("Black")
+        Color_picked.pack()
+
+        return Color_picked
+
+    def map_color(self, predefinied_color):
+        match predefinied_color:
+            case "Black":
+                return Color.BLACK
+            case "Red":
+                return Color.RED
+            case "Green":
+                return Color.GREEN
+            case "Blue":
+                return Color.BLUE
+            case "Cyan":
+                return Color.CYAN
+            case "Yellow":
+                return Color.YELLOW
+            case _:
+                return Color.MAGENTA
+
+ 
     #Creation of point - still not working
     def create_point_window(self):
         create_point_window = Toplevel(self._main_window)
@@ -104,9 +131,12 @@ class Graphic_Viewer:
 
         entry_x, entry_y = self.ask_coordinates(point_coord_frame)
 
+        color = self.create_color(point_coord_frame)
+
         create_point_button = Button(point_coord_frame, 
                                      command=lambda :self.controller.create_point(float(entry_x.get()), 
-                                                                                  float(entry_y.get())),
+                                                                                  float(entry_y.get()),
+                                                                                  self.map_color(color.get())),
                                      text="Create").pack()
 
     # Creation of line
@@ -423,19 +453,19 @@ class Graphic_Viewer:
 
 
 
-    def draw_point(self, window_coordinates: Coordinates):
+    def draw_point(self, window_coordinates: Coordinates, color: Color):
         coordinates = self.controller.transform_window_to_viewport(window_coordinates)
         
-        self._canvas.create_oval(coordinates.x, coordinates.y, coordinates.x + 5, coordinates.y + 5, fill="black", outline="")
+        self._canvas.create_oval(coordinates.x, coordinates.y, coordinates.x + 5, coordinates.y + 5, fill=color.value, outline="")
         # self._canvas.create_line(100, 200, 200, 35, fill=COLOR, width=WIDTH)
         # p = 300
         # self._canvas.create_oval(300, 300, 300+3, 300+3, fill="black", outline="")
     
-    def draw_line(self, window_endpoint1: Coordinates, window_endpoint2: Coordinates):
+    def draw_line(self, window_endpoint1: Coordinates, window_endpoint2: Coordinates, color: Color):
         endpoint1 = self.controller.transform_window_to_viewport(window_endpoint1)
         endpoint2 = self.controller.transform_window_to_viewport(window_endpoint2)
 
-        self._canvas.create_line(endpoint1.x, endpoint1.y, endpoint2.x, endpoint2.y)
+        self._canvas.create_line(endpoint1.x, endpoint1.y, endpoint2.x, endpoint2.y, fill=color.value)
 
     def run(self):
         self._main_window.mainloop()

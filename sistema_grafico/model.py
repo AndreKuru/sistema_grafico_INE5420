@@ -2,6 +2,16 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from numpy import double, dot
+from enum import Enum
+
+class Color(Enum):
+    BLACK   = "Black"
+    RED     = "Red"
+    GREEN   = "Green"
+    BLUE    = "Blue"
+    CYAN    = "Cyan"
+    YELLOW  = "Yellow"
+    MAGENTA = "Magenta"
 
 @dataclass
 class Coordinates:
@@ -50,6 +60,8 @@ def transform(coordinates: Coordinates, matrix: list[list[int|double|float]]):
     return Coordinates(new_p[0], new_p[1])
 
 class Drawable(Protocol):
+    color: Color
+
     def draw(self, drawer: Drawer):
         ...
 
@@ -62,9 +74,10 @@ class Drawable(Protocol):
 @dataclass
 class Point:
     coordinates: Coordinates
+    color: Color = Color.BLACK
 
     def draw(self, drawer: Drawer):
-        drawer.draw_point(self.coordinates)
+        drawer.draw_point(self.coordinates, self.color)
 
     def transform(self, matrix: list[list[int|double|float]]):
         self.coordinates = transform(self.coordinates, matrix)
@@ -77,9 +90,10 @@ class Point:
 class Line:
     endpoint1: Coordinates
     endpoint2: Coordinates
+    color: Color = Color.BLACK
 
     def draw(self, drawer: Drawer):
-        drawer.draw_line(self.endpoint1, self.endpoint2)
+        drawer.draw_line(self.endpoint1, self.endpoint2, self.color)
 
     def transform(self, matrix: list[list[int|double|float]]):
         self.endpoint1 = transform(self.endpoint1, matrix)
@@ -94,12 +108,13 @@ class Line:
 @dataclass
 class Wireframe:
     vertexes: list[Coordinates]
+    color: Color = Color.BLACK
 
     def draw(self, drawer: Drawer):
         if len(self.vertexes) > 2:
             for i in range(len(self.vertexes)-1):
-                drawer.draw_line(self.vertexes[i], self.vertexes[i+1])
-            drawer.draw_line(self.vertexes[-1], self.vertexes[0])
+                drawer.draw_line(self.vertexes[i], self.vertexes[i+1], self.color)
+            drawer.draw_line(self.vertexes[-1], self.vertexes[0], self.color)
 
     def transform(self, matrix: list[list[int|double|float]]):
         new_vertexes = list()

@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 
-from model import Coordinates, Point, Line, Wireframe, Drawable, Area2d
+from model import Coordinates, Point, Line, Wireframe, Drawable, Area2d, Color
 from math import sin, cos, radians
 from numpy import double, dot
 
@@ -29,6 +29,9 @@ class Controller:
 
         viewport_x = (drawable_in_window.x - x_w_min) / (x_w_max - x_w_min) * (x_vp_max - x_vp_min)
         viewport_y = (1 - ((drawable_in_window.y - y_w_min)/(y_w_max - y_w_min))) * (y_vp_max - y_vp_min)
+
+        viewport_x = viewport_x - self._window.max.x/2
+        viewport_y = viewport_y - self._window.max.y/2
 
         viewport_coordinates = Coordinates(int(viewport_x), int(viewport_y))
 
@@ -66,9 +69,9 @@ class Controller:
         return name
         
 
-    def create_point(self, x: int, y: int):
+    def create_point(self, x: int, y: int, color: Color):
         name = self.new_name("Point")
-        point = Point(Coordinates(x, y))
+        point = Point(Coordinates(x, y), color)
         self._display_file[name] = point
         self._drawer.insert_drawable(name)
         self.redraw()
