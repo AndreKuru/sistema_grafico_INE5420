@@ -133,11 +133,11 @@ class Graphic_Viewer:
 
         color = self.create_color(point_coord_frame)
 
-        create_point_button = Button(point_coord_frame, 
-                                     command=lambda :self.controller.create_point(float(entry_x.get()), 
-                                                                                  float(entry_y.get()),
-                                                                                  self.map_color(color.get())),
-                                     text="Create").pack()
+        Button(point_coord_frame, 
+               command=lambda :self.controller.create_point(float(entry_x.get()), 
+                                                            float(entry_y.get()), 
+                                                            self.map_color(color.get())),
+               text="Create").pack()
 
     # Creation of line
     def create_line_window(self):
@@ -157,14 +157,17 @@ class Graphic_Viewer:
 
         x2_entry, y2_entry = self.ask_coordinates(line_coord_frame)
 
+        color = self.create_color(line_coord_frame)
+
         Button(line_coord_frame, 
                command=lambda : self.controller.create_line(float(x1_entry.get()),
                                                             float(y1_entry.get()),
                                                             float(x2_entry.get()),
-                                                            float(y2_entry.get())),
+                                                            float(y2_entry.get()),
+                                                            self.map_color(color.get())),
                text="Create").pack()
 
-    def create_wireframe(self, listbox_x: Listbox, listbox_y: Listbox):
+    def create_wireframe(self, listbox_x: Listbox, listbox_y: Listbox, color: Color):
         all_x = list()
         for x in listbox_x.get(0, listbox_x.size()):
             all_x.append(float(x))
@@ -173,7 +176,7 @@ class Graphic_Viewer:
         for y in listbox_y.get(0, listbox_x.size()):
             all_y.append(float(y))
 
-        self.controller.create_wireframe(all_x, all_y)
+        self.controller.create_wireframe(all_x, all_y, color)
 
 
     # Creation of wireframe
@@ -186,8 +189,12 @@ class Graphic_Viewer:
 
         listbox_x, listbox_y = self.ask_several_coordinates(wireframe_coord_frame)
 
+        color = self.create_color(wireframe_coord_frame)
+
         Button(wireframe_coord_frame, 
-               command=lambda : self.create_wireframe(listbox_x, listbox_y), 
+               command=lambda : self.create_wireframe(listbox_x, 
+                                                      listbox_y, 
+                                                      self.map_color(color.get())),
                text="Create").pack()
 
     def move_up(self):

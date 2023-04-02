@@ -76,22 +76,22 @@ class Controller:
         self._drawer.insert_drawable(name)
         self.redraw()
 
-    def create_line(self, x1: int, y1: int, x2: int, y2: int):
+    def create_line(self, x1: int, y1: int, x2: int, y2: int, color: Color):
         name = self.new_name("Line")
         endpoint1 = Coordinates(x1, y1)
         endpoint2 = Coordinates(x2, y2)
-        line = Line(endpoint1, endpoint2)
+        line = Line(endpoint1, endpoint2, color)
         self._display_file[name] = line
         self._drawer.insert_drawable(name)
         self.redraw()
 
-    def create_wireframe(self, list_x: list(int), list_y: list(int)):
+    def create_wireframe(self, list_x: list(int), list_y: list(int), color: Color):
         name = self.new_name("Wireframe")
         coordinates = list()
         for i in range(len(list_x)):
             coordinate = Coordinates(list_x[i], list_y[i])
             coordinates.append(coordinate)
-        wireframe = Wireframe(coordinates)
+        wireframe = Wireframe(coordinates, color)
         self._display_file[name] = wireframe
         self._drawer.insert_drawable(name)
         self.redraw()
