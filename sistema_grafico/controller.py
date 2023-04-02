@@ -184,12 +184,12 @@ class Controller:
                     matrix = self.scale(Coordinates(op1, op2), center.coordinates)
                 case "r":
                     if op2 == "a":
-                        x = transformations[i][3]
-                        y = transformations[i][4]
+                        x = float(transformations[i][3])
+                        y = float(transformations[i][4])
                         position = Coordinates(x, y)
                     else:
                         position = center.coordinates
-                    matrix = self.rotate(op1, op2, position)
+                    matrix = self.rotate(float(op1), op2, position)
 
             center.transform(matrix)
             resulting_matrix = dot(resulting_matrix, matrix)

@@ -327,19 +327,19 @@ class Graphic_Viewer:
         angle = Entry(rotation_option, width=6)
         angle.pack()
 
-        rotate_in = IntVar()
-
-        origin = Radiobutton(rotation_option, text="Rotate in origin", variable=rotate_in, value=ORIGIN)
-        origin.pack(anchor="w")
-
-        selected_object = Radiobutton(rotation_option, text="Rotate in self center", variable=rotate_in, value=SELECTED_OBJECT)
-        selected_object.pack(anchor="w")
-
-        arbitrary_position = Radiobutton(rotation_option, text="Rotate in arbitrary position", variable=rotate_in, value=ARBITRARY_POSITION)
-        arbitrary_position.pack(anchor="w")
-
         arbitrary_point = Frame(rotation_option)
         arbitrary_point_x, arbitrary_point_y = self.ask_coordinates(arbitrary_point)
+
+        rotate_in = IntVar()
+
+        origin = Radiobutton(rotation_option, text="Rotate in origin", variable=rotate_in, value=ORIGIN, command=lambda : self.unask_arbitrary_point(arbitrary_point))
+        origin.pack(anchor="w")
+
+        selected_object = Radiobutton(rotation_option, text="Rotate in self center", variable=rotate_in, value=SELECTED_OBJECT, command=lambda : self.unask_arbitrary_point(arbitrary_point))
+        selected_object.pack(anchor="w")
+
+        arbitrary_position = Radiobutton(rotation_option, text="Rotate in arbitrary position", variable=rotate_in, value=ARBITRARY_POSITION, command=lambda : self.ask_arbitrary_point(arbitrary_point))
+        arbitrary_position.pack(anchor="w")
 
 
         # Notebook end
@@ -463,7 +463,7 @@ class Graphic_Viewer:
     def draw_point(self, window_coordinates: Coordinates, color: Color):
         coordinates = self.controller.transform_window_to_viewport(window_coordinates)
         
-        self._canvas.create_oval(coordinates.x, coordinates.y, coordinates.x + 5, coordinates.y + 5, fill=color.value, outline="")
+        self._canvas.create_oval(coordinates.x - 2, coordinates.y - 2, coordinates.x + 2, coordinates.y + 2, fill=color.value, outline="")
         # self._canvas.create_line(100, 200, 200, 35, fill=COLOR, width=WIDTH)
         # p = 300
         # self._canvas.create_oval(300, 300, 300+3, 300+3, fill="black", outline="")
