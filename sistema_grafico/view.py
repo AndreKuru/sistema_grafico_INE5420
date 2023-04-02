@@ -246,6 +246,7 @@ class Graphic_Viewer:
                 else:
                     transformations_formatted.append((operation, int(op1), int(op2)))
 
+        history.delete(0, history.size() - 1)
         self.controller.transform(transformations_formatted, name)
 
 

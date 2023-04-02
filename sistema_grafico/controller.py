@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 
 from model import Coordinates, Point, Line, Wireframe, Drawable, Area2d
-from math import sin, cos
+from math import sin, cos, radians
 from numpy import double, dot
 
 if TYPE_CHECKING:
@@ -158,6 +158,8 @@ class Controller:
         return self.rotate_around_arbitrary_point(angle, center)
 
     def rotate(self, angle: float, center: str, position: Coordinates, name: str):
+        angle = radians(angle)
+
         match center:
             case "o":
                 return self.rotate_around_origin(angle)
