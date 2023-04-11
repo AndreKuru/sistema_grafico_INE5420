@@ -529,6 +529,20 @@ class Graphic_Viewer:
             side="left"
         )
 
+        # Window rotation
+        window_rotation = Frame(window_function)
+        window_rotation.pack()
+
+        Label(window_rotation, text="Rotate").pack()
+
+        angle = Entry(window_rotation, width=6)
+
+        Button(window_rotation, command=lambda: self.controller.transform_window([("r", float(angle.get()), "o")]), text="CCW").pack(side="left")
+
+        angle.pack(side="left")
+        
+        Button(window_rotation, command=lambda: self.controller.transform_window([("r", - float(angle.get()), "o")]), text="CW").pack(side="left")
+        
     def draw_point(self, drawable_coordinates: Coordinates, color: Color):
         coordinates = self.controller.transform_window_to_viewport(drawable_coordinates)
 
