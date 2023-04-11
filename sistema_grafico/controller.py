@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from model import Coordinates, Point, Line, Wireframe, Drawable, Area2d, Color
 from math import sin, cos, radians
 from numpy import double, dot
+from copy import copy, deepcopy
 
 if TYPE_CHECKING:
     from view import Graphic_Viewer
@@ -88,6 +89,9 @@ class Controller:
         point = Point(Coordinates(x, y), color)
         self._display_file[name] = point
         self._drawer.insert_drawable(name)
+        point_NDC = deepcopy(point)
+        point_NDC.transform(self._transformation_NDC)
+        self._display_file_NDC[name] = point_NDC
         self.redraw()
 
     def create_line(self, x1: int, y1: int, x2: int, y2: int, color: Color):
@@ -97,6 +101,9 @@ class Controller:
         line = Line(endpoint1, endpoint2, color)
         self._display_file[name] = line
         self._drawer.insert_drawable(name)
+        line_NDC = deepcopy(line)
+        line_NDC.transform(self._transformation_NDC)
+        self._display_file_NDC[name] = line_NDC
         self.redraw()
 
     def create_wireframe(self, list_x: list(int), list_y: list(int), color: Color):
@@ -108,11 +115,14 @@ class Controller:
         wireframe = Wireframe(coordinates, color)
         self._display_file[name] = wireframe
         self._drawer.insert_drawable(name)
+        wireframe_NDC = deepcopy(wireframe)
+        wireframe_NDC.transform(self._transformation_NDC)
+        self._display_file_NDC[name] = wireframe_NDC
         self.redraw()
 
     def redraw(self):
         self._drawer.clear()
-        for drawable in self._display_file.values():
+        for drawable in self._display_file_NDC.values():
             drawable.draw(self._drawer)
 
     def pan_window(self, movement: Coordinates):
@@ -178,6 +188,10 @@ class Controller:
         transformations_matrix = self.transform(transformations, center, initial_matrix)
 
         drawable.transform(transformations_matrix)
+
+        drawable_NDC = deepcopy(drawable)
+        drawable_NDC.transform(self._transformation_NDC)
+        self._display_file_NDC[name] = drawable_NDC
         self.redraw()
 
     def transform(
@@ -212,8 +226,13 @@ class Controller:
 
             center.transform(matrix)
             transformation_matrix = dot(transformation_matrix, matrix)
-        
+
         return transformation_matrix
+
+    def transform_display_file_NDC(self):
+        self._display_file_NDC = deepcopy(self._display_file)
+        for drawable in self._display_file_NDC:
+            drawable.transform(self._transformation_NDC)
 
     def transform_window(
         self,
@@ -221,4 +240,6 @@ class Controller:
             tuple[str, int | float, str | int], int | None, int | None
         ],
     ):
-        ...
+        self._transformation_NDC = self.transform(
+            transformations, Point(0, 0), self._transformation_NDC
+        )
