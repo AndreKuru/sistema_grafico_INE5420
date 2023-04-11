@@ -31,8 +31,8 @@ class Coordinates:
         return Coordinates(x, y)
 
     def multiply_scalar(self, other: int | double | float):
-        self.x = self.x * (1 + other)
-        self.y = self.y * (1 + other)
+        self.x = self.x * (other)
+        self.y = self.y * (other)
 
 
 @dataclass
@@ -40,15 +40,15 @@ class Area2d:
     min: Coordinates
     max: Coordinates
 
-    def size():
-        return max - min
+    def size(self):
+        return self.max - self.min
 
     def move(self, movement: Coordinates):
         self.min = self.min + movement
         self.max = self.max + movement
 
     def zoom(self, ammount: float):
-        self.max.multiply_scalar(ammount)
+        self.max.multiply_scalar(1 + ammount)
 
 
 class Drawer(Protocol):

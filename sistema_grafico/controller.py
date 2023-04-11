@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from model import Coordinates, Point, Line, Wireframe, Drawable, Area2d, Color
 from math import sin, cos, radians
 from numpy import double, dot
-from copy import copy, deepcopy
+from copy import deepcopy
 
 if TYPE_CHECKING:
     from view import Graphic_Viewer
@@ -125,8 +125,15 @@ class Controller:
         for drawable in self._display_file_NDC.values():
             drawable.draw(self._drawer)
 
-    def pan_window(self, movement: Coordinates):
+    def size_window(self) -> Coordinates:
+        return self._window.size()
+
+    def pan_window(self, movement: Coordinates, step: float):
+        window = self.size_window()
+        window.multiply_scalar(step)
+        translate = ("t", movement.x * window.x, movement.y * window.y)
         self._window.move(movement)
+        self.transform_window([translate])
         self.redraw()
 
     def zoom(self, ammount: float):
@@ -177,7 +184,7 @@ class Controller:
     def transform_drawable(
         self,
         transformations: list[
-            tuple[str, int | float, str | int], int | None, int | None
+            tuple[str, int | float, str | int, int | None, int | None]
         ],
         name: str,
     ):
@@ -197,7 +204,7 @@ class Controller:
     def transform(
         self,
         transformations: list[
-            tuple[str, int | float, str | int], int | None, int | None
+            tuple[str, int | float, str | int | float, int | None, int | None]
         ],
         center: Point,
         transformation_matrix: tuple[
@@ -231,15 +238,18 @@ class Controller:
 
     def transform_display_file_NDC(self):
         self._display_file_NDC = deepcopy(self._display_file)
-        for drawable in self._display_file_NDC:
+        for drawable in self._display_file_NDC.values():
             drawable.transform(self._transformation_NDC)
+        self.redraw()
 
     def transform_window(
         self,
         transformations: list[
-            tuple[str, int | float, str | int], int | None, int | None
+            tuple[str, int | float, str | int | float, int | None, int | None]
         ],
     ):
+
         self._transformation_NDC = self.transform(
-            transformations, Point(0, 0), self._transformation_NDC
+            transformations, Point(Coordinates(0, 0)), self._transformation_NDC
         )
+        self.transform_display_file_NDC()

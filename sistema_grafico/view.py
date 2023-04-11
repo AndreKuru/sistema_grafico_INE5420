@@ -235,20 +235,20 @@ class Graphic_Viewer:
         ).pack()
 
     def move_up(self):
-        movement = Coordinates(0, 5)
-        self.controller.pan_window(movement)
+        movement = Coordinates(0, -1)
+        self.controller.pan_window(movement, 0.1)
 
     def move_down(self):
-        movement = Coordinates(0, -5)
-        self.controller.pan_window(movement)
+        movement = Coordinates(0, 1)
+        self.controller.pan_window(movement, 0.1)
 
     def move_left(self):
-        movement = Coordinates(-5, 0)
-        self.controller.pan_window(movement)
+        movement = Coordinates(1, 0)
+        self.controller.pan_window(movement, 0.1)
 
     def move_right(self):
-        movement = Coordinates(5, 0)
-        self.controller.pan_window(movement)
+        movement = Coordinates(-1, 0)
+        self.controller.pan_window(movement, 0.1)
 
     def display_popup(self, event, popup: Menu):
         try:
