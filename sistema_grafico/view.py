@@ -452,10 +452,10 @@ class Graphic_Viewer:
         zoom.pack()
 
         Button(zoom, 
-               command=lambda : self.controller.zoom(-10),
+               command=lambda : self.controller.zoom(-0.1),
                text="+").pack(side="right")
         Button(zoom, 
-               command=lambda : self.controller.zoom(10),
+               command=lambda : self.controller.zoom(0.1),
                text="-").pack(side="left")
 
 

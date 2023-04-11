@@ -11,10 +11,11 @@ if TYPE_CHECKING:
 
 @dataclass
 class Controller:
-    _display_file: dict[Drawable] = field(default_factory=dict)
     _drawer: Optional["Graphic_Viewer"] = None
-    _world_window: Area2d = Area2d(Coordinates(0, 0), Coordinates(1000, 1000))
     _window: Area2d = Area2d(Coordinates(0, 0), Coordinates(200, 200))
+    _display_file: dict[Drawable] = field(default_factory=dict)
+    _display_file_NDC: dict[Drawable] = field(default_factory=dict)
+    _transformation_NDC: list[list[int|double|float]] = field(default_factory=lambda:[[1,0,0],[0,1,0],[0,0,1]])
 
     def transform_window_to_viewport(self, drawable_in_window: Coordinates):
         x_w_max = self._window.max.x
@@ -105,7 +106,7 @@ class Controller:
         self._window.move(movement)
         self.redraw()
 
-    def zoom(self, ammount: int):
+    def zoom(self, ammount: float):
         self._window.zoom(ammount)
         self.redraw()
 
@@ -195,3 +196,6 @@ class Controller:
             resulting_matrix = dot(resulting_matrix, matrix)
         drawable.transform(resulting_matrix)
         self.redraw()
+
+    def transform_window(self, transformations: list[tuple[str,int|float,str|int],int|None,int|None]):
+        ...
