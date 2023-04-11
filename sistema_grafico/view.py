@@ -522,10 +522,10 @@ class Graphic_Viewer:
         zoom = Frame(window_function)
         zoom.pack()
 
-        Button(zoom, command=lambda: self.controller.zoom(-0.1), text="+").pack(
+        Button(zoom, command=lambda: self.controller.zoom(Coordinates(1.1, 1.1)), text="+").pack(
             side="right"
         )
-        Button(zoom, command=lambda: self.controller.zoom(0.1), text="-").pack(
+        Button(zoom, command=lambda: self.controller.zoom(Coordinates(0.9, 0.9)), text="-").pack(
             side="left"
         )
 

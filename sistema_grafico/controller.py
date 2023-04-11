@@ -132,12 +132,12 @@ class Controller:
         window = self.size_window()
         window.multiply_scalar(step)
         translate = ("t", movement.x * window.x, movement.y * window.y)
-        self._window.move(movement)
         self.transform_window([translate])
         self.redraw()
 
-    def zoom(self, ammount: float):
-        self._window.zoom(ammount)
+    def zoom(self, ammount: Coordinates):
+        scalling = ("s", ammount.x, ammount.y)
+        self.transform_window([scalling])
         self.redraw()
 
     def translate(self, transformation: Coordinates):
