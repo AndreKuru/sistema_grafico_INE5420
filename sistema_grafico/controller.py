@@ -22,13 +22,13 @@ class Controller:
     )
 
     def transform_window_to_viewport(self, drawable_in_window: Coordinates):
-        x_w_max = self._window.max.x
-        x_w_min = self._window.min.x
+        x_w_max = 1
+        x_w_min = -1
         x_vp_max = self._drawer._viewport.max.x
         x_vp_min = self._drawer._viewport.min.x
 
-        y_w_max = self._window.max.y
-        y_w_min = self._window.min.y
+        y_w_max = 1
+        y_w_min = -1
         y_vp_max = self._drawer._viewport.max.y
         y_vp_min = self._drawer._viewport.min.y
 
@@ -126,7 +126,7 @@ class Controller:
             drawable.draw(self._drawer)
 
     def size_window(self) -> Coordinates:
-        return self._window.size()
+        return Coordinates(self._transformation_NDC[0][0], self._transformation_NDC[1][1])
 
     def pan_window(self, movement: Coordinates, step: float):
         window = self.size_window()

@@ -529,8 +529,8 @@ class Graphic_Viewer:
             side="left"
         )
 
-    def draw_point(self, window_coordinates: Coordinates, color: Color):
-        coordinates = self.controller.transform_window_to_viewport(window_coordinates)
+    def draw_point(self, drawable_coordinates: Coordinates, color: Color):
+        coordinates = self.controller.transform_window_to_viewport(drawable_coordinates)
 
         self._canvas.create_oval(
             coordinates.x - 2,
