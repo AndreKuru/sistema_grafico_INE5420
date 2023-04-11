@@ -9,13 +9,16 @@ from numpy import double, dot
 if TYPE_CHECKING:
     from view import Graphic_Viewer
 
+
 @dataclass
 class Controller:
     _drawer: Optional["Graphic_Viewer"] = None
     _window: Area2d = Area2d(Coordinates(0, 0), Coordinates(200, 200))
     _display_file: dict[Drawable] = field(default_factory=dict)
     _display_file_NDC: dict[Drawable] = field(default_factory=dict)
-    _transformation_NDC: list[list[int|double|float]] = field(default_factory=lambda:[[1,0,0],[0,1,0],[0,0,1]])
+    _transformation_NDC: list[list[int | double | float]] = field(
+        default_factory=lambda: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+    )
 
     def transform_window_to_viewport(self, drawable_in_window: Coordinates):
         x_w_max = self._window.max.x
@@ -28,11 +31,17 @@ class Controller:
         y_vp_max = self._drawer._viewport.max.y
         y_vp_min = self._drawer._viewport.min.y
 
-        viewport_x = (drawable_in_window.x - x_w_min) / (x_w_max - x_w_min) * (x_vp_max - x_vp_min)
-        viewport_y = (1 - ((drawable_in_window.y - y_w_min)/(y_w_max - y_w_min))) * (y_vp_max - y_vp_min)
+        viewport_x = (
+            (drawable_in_window.x - x_w_min)
+            / (x_w_max - x_w_min)
+            * (x_vp_max - x_vp_min)
+        )
+        viewport_y = (1 - ((drawable_in_window.y - y_w_min) / (y_w_max - y_w_min))) * (
+            y_vp_max - y_vp_min
+        )
 
-        viewport_x = viewport_x - self._window.max.x/2
-        viewport_y = viewport_y - self._window.max.y/2
+        viewport_x = viewport_x - self._window.max.x / 2
+        viewport_y = viewport_y - self._window.max.y / 2
 
         viewport_coordinates = Coordinates(int(viewport_x), int(viewport_y))
 
@@ -49,8 +58,13 @@ class Controller:
         y_vp_max = self._drawer._viewport.max.y
         y_vp_min = self._drawer._viewport.min.y
 
-        window_x = viewport_coordinates.x * ((x_w_max - x_w_min)/(x_vp_max - x_vp_min)) + x_w_min 
-        window_y = (1 - (viewport_coordinates.y/(y_vp_max - y_vp_min))) * (y_w_max - y_w_min) + y_w_min
+        window_x = (
+            viewport_coordinates.x * ((x_w_max - x_w_min) / (x_vp_max - x_vp_min))
+            + x_w_min
+        )
+        window_y = (1 - (viewport_coordinates.y / (y_vp_max - y_vp_min))) * (
+            y_w_max - y_w_min
+        ) + y_w_min
 
         window_coordinates = Coordinates(window_x, window_y)
 
@@ -68,7 +82,6 @@ class Controller:
             index += 1
 
         return name
-        
 
     def create_point(self, x: int, y: int, color: Color):
         name = self.new_name("Point")
@@ -96,7 +109,7 @@ class Controller:
         self._display_file[name] = wireframe
         self._drawer.insert_drawable(name)
         self.redraw()
-            
+
     def redraw(self):
         self._drawer.clear()
         for drawable in self._display_file.values():
@@ -111,22 +124,14 @@ class Controller:
         self.redraw()
 
     def translate(self, transformation: Coordinates):
-        matrix = (
-            (1,0,0),
-            (0,1,0),
-            (transformation.x,transformation.y,1)
-            )
+        matrix = ((1, 0, 0), (0, 1, 0), (transformation.x, transformation.y, 1))
         return matrix
 
     def scale(self, transformation: Coordinates, center: Coordinates):
         translation_to_origin = Coordinates(0, 0) - center
         resulting_matrix = self.translate(translation_to_origin)
 
-        matrix = (
-            (transformation.x,0,0),
-            (0,transformation.y,0),
-            (0,0,1)
-            )
+        matrix = ((transformation.x, 0, 0), (0, transformation.y, 0), (0, 0, 1))
         resulting_matrix = dot(resulting_matrix, matrix)
 
         matrix = self.translate(center)
@@ -135,11 +140,7 @@ class Controller:
         return resulting_matrix
 
     def rotate_around_origin(self, angle: float):
-        matrix = (
-            (cos(angle),-sin(angle),0),
-            (sin(angle),cos(angle),0),
-            (0,0,1)
-            )
+        matrix = ((cos(angle), -sin(angle), 0), (sin(angle), cos(angle), 0), (0, 0, 1))
         return matrix
 
     def rotate_around_arbitrary_point(self, angle: float, position: Coordinates):
@@ -163,12 +164,28 @@ class Controller:
             case _:
                 return self.rotate_around_arbitrary_point(angle, position)
 
-    def transform(self, transformations: list[tuple[str,int|float,str|int],int|None,int|None], name: str):
-        resulting_matrix = (
-            (1,0,0),
-            (0,1,0),
-            (0,0,1)
-            )
+    def transform_drawable(
+        self,
+        transformations: list[
+            tuple[str, int | float, str | int], int | None, int | None
+        ],
+        name: str,
+    ):
+        ...
+
+    def transform(
+        self,
+        transformations: list[
+            tuple[str, int | float, str | int], int | None, int | None
+        ],
+        center: Coordinates,
+        transformation_matrix: tuple[
+            tuple[float, float, float],
+            tuple[float, float, float],
+            tuple[float, float, float],
+        ],
+    ):
+        resulting_matrix = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
         drawable = self._display_file[name]
 
         center = drawable.calculate_center()
@@ -197,5 +214,10 @@ class Controller:
         drawable.transform(resulting_matrix)
         self.redraw()
 
-    def transform_window(self, transformations: list[tuple[str,int|float,str|int],int|None,int|None]):
+    def transform_window(
+        self,
+        transformations: list[
+            tuple[str, int | float, str | int], int | None, int | None
+        ],
+    ):
         ...

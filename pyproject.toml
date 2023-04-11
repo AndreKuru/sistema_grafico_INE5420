@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "sistema-grafico-ine5420"
+version = "0.1.0"
+description = "Sistema gráfico interativo desenvolvido para a disciplina de Computação gráfica da UFSC INE5420."
+authors = ["andrekuru <andrewilliam13@gmail.com>, julien-vaz <jhmvaz95@gmail.com>"]
+license = "GPL-3.0-only"
+readme = "README.md"
+packages = [{include = "sistema_grafico_ine5420"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+black = "^23.3.0"
+pytest = "^7.3.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

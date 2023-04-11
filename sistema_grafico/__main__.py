@@ -7,4 +7,5 @@ def main():
     drawer = Graphic_Viewer(controller=controller)
     drawer.run()
 
+
 main()
