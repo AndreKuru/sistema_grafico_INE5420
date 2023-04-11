@@ -326,7 +326,7 @@ class Graphic_Viewer:
                     )
 
         history.delete(0, history.size() - 1)
-        self.controller.transform(transformations_formatted, name)
+        self.controller.transform_drawable(transformations_formatted, name)
 
     def ask_arbitrary_point(self, arbitrary_point: ttk.Frame):
         arbitrary_point.pack()

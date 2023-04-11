@@ -171,26 +171,27 @@ class Controller:
         ],
         name: str,
     ):
-        ...
+        drawable = self._display_file[name]
+        initial_matrix = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
+
+        center = Point(drawable.calculate_center())
+        transformations_matrix = self.transform(transformations, center, initial_matrix)
+
+        drawable.transform(transformations_matrix)
+        self.redraw()
 
     def transform(
         self,
         transformations: list[
             tuple[str, int | float, str | int], int | None, int | None
         ],
-        center: Coordinates,
+        center: Point,
         transformation_matrix: tuple[
             tuple[float, float, float],
             tuple[float, float, float],
             tuple[float, float, float],
         ],
     ):
-        resulting_matrix = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
-        drawable = self._display_file[name]
-
-        center = drawable.calculate_center()
-        center = Point(center)
-
         for i in range(len(transformations)):
             operation = transformations[i][0]
             op1 = transformations[i][1]
@@ -210,9 +211,9 @@ class Controller:
                     matrix = self.rotate(float(op1), op2, position)
 
             center.transform(matrix)
-            resulting_matrix = dot(resulting_matrix, matrix)
-        drawable.transform(resulting_matrix)
-        self.redraw()
+            transformation_matrix = dot(transformation_matrix, matrix)
+        
+        return transformation_matrix
 
     def transform_window(
         self,
