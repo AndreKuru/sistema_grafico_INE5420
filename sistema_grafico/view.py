@@ -70,7 +70,8 @@ class Graphic_Viewer:
         self._canvas.delete("all")
 
     def insert_drawable(self, name: str):
-        self._display_file_list.insert("end", name)
+        if not name in self._display_file_list.get(1):
+            self._display_file_list.insert("end", name)
 
     def ask_coordinates(self, coord_frame):
         point_x = Frame(coord_frame)
@@ -483,6 +484,22 @@ class Graphic_Viewer:
         with filepath.open("w") as file:
             file.write(content)
 
+    def import_item(self):
+        filepath = askopenfile(initialdir=Path(__file__).parents[1] / "export files", defaultextension=".obj")
+
+        if not filepath:
+            return
+    
+        filepath = Path(filepath.name)
+
+        lines = list()
+
+        with filepath.open() as file:
+            for line in file:
+                lines.append(line.strip())
+            
+        self.controller.import_obj(lines)
+
 
     def init_window_function(self):
         window_function = Frame(
@@ -528,26 +545,25 @@ class Graphic_Viewer:
             label="Export", command=lambda: self.export_item()
         )
 
+
         display_file_list.bind(
             "<Button-3>", lambda event: self.display_popup(event, display_file_popup)
         )
 
+        Button(display_file_frame, text="Import", command=lambda: self.import_item()).pack()
+
         create_frame = Frame(display_file_frame)
         create_frame.pack()
 
-        import_button = Button(
-            create_frame, text="Import"
-        )
+        Label(create_frame, text="Create:").pack()
 
-        label = Label(create_frame, text="Create:").pack()
-
-        create_point_button = Button(
+        Button(
             create_frame, text="Point", command=lambda: self.create_point_window()
         ).pack(side="left")
-        create_line_button = Button(
+        Button(
             create_frame, text="Line", command=lambda: self.create_line_window()
         ).pack(side="left")
-        create_wireframe_button = Button(
+        Button(
             create_frame,
             text="Wireframe",
             command=lambda: self.create_wireframe_window(),
