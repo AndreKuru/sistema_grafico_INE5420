@@ -440,29 +440,29 @@ class Graphic_Viewer:
             text="Apply",
         ).pack(side="right")
 
-#    def export_window(self):
-#        if not self._display_file_list.curselection():
-#            return
-#
-#        index = self._display_file_list.curselection()[0]
-#
-#        name_selected = self._display_file_list.get(index)
-#
-#        export_window = Toplevel(self._main_window)
-#        export_window.title("Export")
-#
-#        path_frame = Frame(export_window)
-#        path_frame.pack()
-#
-#        Label(path_frame, text="Path").pack(side="left")
-#
-#        path = Entry(path_frame, width=30)
-#        path.insert(0, Path().home() / f"{name_selected}.obj")
-#        path.pack(side="left")
-#
-#        Button(path_frame, text="...", command=lambda: asksaveasfile(initialdir=Path(__file__).parents[1] / "export files", initialfile=f"{name_selected}.obj")).pack(side="left")
-#
-#        Button(export_window, text="Confirm", command=lambda: self.controller.export_obj()).pack()
+    #    def export_window(self):
+    #        if not self._display_file_list.curselection():
+    #            return
+    #
+    #        index = self._display_file_list.curselection()[0]
+    #
+    #        name_selected = self._display_file_list.get(index)
+    #
+    #        export_window = Toplevel(self._main_window)
+    #        export_window.title("Export")
+    #
+    #        path_frame = Frame(export_window)
+    #        path_frame.pack()
+    #
+    #        Label(path_frame, text="Path").pack(side="left")
+    #
+    #        path = Entry(path_frame, width=30)
+    #        path.insert(0, Path().home() / f"{name_selected}.obj")
+    #        path.pack(side="left")
+    #
+    #        Button(path_frame, text="...", command=lambda: asksaveasfile(initialdir=Path(__file__).parents[1] / "export files", initialfile=f"{name_selected}.obj")).pack(side="left")
+    #
+    #        Button(export_window, text="Confirm", command=lambda: self.controller.export_obj()).pack()
 
     def export_item(self):
         if not self._display_file_list.curselection():
@@ -472,7 +472,11 @@ class Graphic_Viewer:
 
         name_selected = self._display_file_list.get(index)
 
-        filepath = asksaveasfile(initialdir=Path(__file__).parents[1] / "export files", initialfile=f"{name_selected}", defaultextension=".obj")
+        filepath = asksaveasfile(
+            initialdir=Path(__file__).parents[1] / "export files",
+            initialfile=f"{name_selected}",
+            defaultextension=".obj",
+        )
 
         if not filepath:
             return
@@ -485,11 +489,14 @@ class Graphic_Viewer:
             file.write(content)
 
     def import_item(self):
-        filepath = askopenfile(initialdir=Path(__file__).parents[1] / "export files", defaultextension=".obj")
+        filepath = askopenfile(
+            initialdir=Path(__file__).parents[1] / "export files",
+            defaultextension=".obj",
+        )
 
         if not filepath:
             return
-    
+
         filepath = Path(filepath.name)
 
         lines = list()
@@ -497,9 +504,8 @@ class Graphic_Viewer:
         with filepath.open() as file:
             for line in file:
                 lines.append(line.strip())
-            
-        self.controller.import_obj(lines)
 
+        self.controller.import_obj(lines)
 
     def init_window_function(self):
         window_function = Frame(
@@ -545,12 +551,13 @@ class Graphic_Viewer:
             label="Export", command=lambda: self.export_item()
         )
 
-
         display_file_list.bind(
             "<Button-3>", lambda event: self.display_popup(event, display_file_popup)
         )
 
-        Button(display_file_frame, text="Import", command=lambda: self.import_item()).pack()
+        Button(
+            display_file_frame, text="Import", command=lambda: self.import_item()
+        ).pack()
 
         create_frame = Frame(display_file_frame)
         create_frame.pack()
@@ -594,12 +601,12 @@ class Graphic_Viewer:
         zoom = Frame(window_function)
         zoom.pack()
 
-        Button(zoom, command=lambda: self.controller.zoom(Coordinates(1.1, 1.1)), text="+").pack(
-            side="right"
-        )
-        Button(zoom, command=lambda: self.controller.zoom(Coordinates(0.9, 0.9)), text="-").pack(
-            side="left"
-        )
+        Button(
+            zoom, command=lambda: self.controller.zoom(Coordinates(1.1, 1.1)), text="+"
+        ).pack(side="right")
+        Button(
+            zoom, command=lambda: self.controller.zoom(Coordinates(0.9, 0.9)), text="-"
+        ).pack(side="left")
 
         # Window rotation
         window_rotation = Frame(window_function)
@@ -609,12 +616,24 @@ class Graphic_Viewer:
 
         angle = Entry(window_rotation, width=6)
 
-        Button(window_rotation, command=lambda: self.controller.transform_window([("r", float(angle.get()), "o")]), text="CCW").pack(side="left")
+        Button(
+            window_rotation,
+            command=lambda: self.controller.transform_window(
+                [("r", float(angle.get()), "o")]
+            ),
+            text="CCW",
+        ).pack(side="left")
 
         angle.pack(side="left")
-        
-        Button(window_rotation, command=lambda: self.controller.transform_window([("r", - float(angle.get()), "o")]), text="CW").pack(side="left")
-        
+
+        Button(
+            window_rotation,
+            command=lambda: self.controller.transform_window(
+                [("r", -float(angle.get()), "o")]
+            ),
+            text="CW",
+        ).pack(side="left")
+
     def draw_point(self, drawable_coordinates: Coordinates, color: Color):
         coordinates = self.controller.transform_window_to_viewport(drawable_coordinates)
 

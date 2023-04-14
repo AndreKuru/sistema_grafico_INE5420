@@ -86,7 +86,9 @@ class Controller:
 
         return name
 
-    def create_point_w_coordinates(self, coordinate: Coordinates, color: Color, name: str = None):
+    def create_point_w_coordinates(
+        self, coordinate: Coordinates, color: Color, name: str = None
+    ):
         if name is None:
             name = self.new_name("Point")
         point = Point(coordinate, color)
@@ -100,7 +102,13 @@ class Controller:
     def create_point(self, x: int, y: int, color: Color):
         self.create_point_w_coordinates(Coordinates(x, y), color)
 
-    def create_line_w_coordinates(self, endpoint1: Coordinates, endpoint2: Coordinates, color: Color, name: str = None):
+    def create_line_w_coordinates(
+        self,
+        endpoint1: Coordinates,
+        endpoint2: Coordinates,
+        color: Color,
+        name: str = None,
+    ):
         if name is None:
             name = self.new_name("Line")
         line = Line(endpoint1, endpoint2, color)
@@ -115,9 +123,11 @@ class Controller:
         endpoint1 = Coordinates(x1, y1)
         endpoint2 = Coordinates(x2, y2)
 
-        self.create_line_w_coordinates(endpoint1,  endpoint2, color)
+        self.create_line_w_coordinates(endpoint1, endpoint2, color)
 
-    def create_wireframe_w_coordinates(self, coordinates: list[Coordinates], color: Color, name: str = None):
+    def create_wireframe_w_coordinates(
+        self, coordinates: list[Coordinates], color: Color, name: str = None
+    ):
         if name is None:
             name = self.new_name("Wireframe")
         wireframe = Wireframe(coordinates, color)
@@ -142,7 +152,9 @@ class Controller:
             drawable.draw(self._drawer)
 
     def size_window(self) -> Coordinates:
-        return Coordinates(self._transformation_NDC[0][0], self._transformation_NDC[1][1])
+        return Coordinates(
+            self._transformation_NDC[0][0], self._transformation_NDC[1][1]
+        )
 
     def pan_window(self, movement: Coordinates, step: float):
         window = self.size_window()
@@ -264,7 +276,6 @@ class Controller:
             tuple[str, int | float, str | int | float, int | None, int | None]
         ],
     ):
-
         self._transformation_NDC = self.transform(
             transformations, Point(Coordinates(0, 0)), self._transformation_NDC
         )
@@ -276,16 +287,18 @@ class Controller:
         match drawable:
             case Point():
                 vertexes = [drawable.coordinates]
-                
+
             case Line():
                 vertexes = [drawable.endpoint1, drawable.endpoint2]
-            
+
             case Wireframe():
                 vertexes = drawable.vertexes
-                
+
         output_content = f"o {name}\n"
         for vertex in vertexes:
-            output_content = output_content + f"\nv {float(vertex.x)} {float(vertex.y)} 0"
+            output_content = (
+                output_content + f"\nv {float(vertex.x)} {float(vertex.y)} 0"
+            )
 
         output_content = output_content + "\n\nf"
 
@@ -296,7 +309,7 @@ class Controller:
         # Absolute
         for i in range(1, len(vertexes) + 1):
             output_content = output_content + f" {i}"
-        
+
         return output_content
 
     def import_obj(self, lines: list[str]) -> None:
@@ -307,18 +320,18 @@ class Controller:
             name = None
 
         vertexes = list()
-        coordinates = list() # 2D
+        coordinates = list()  # 2D
         for line in lines:
             if re.search("v\s-?\d+.?\d*\s-?\d+.?\d*\s-?\d+.?\d*", line):
                 numbers = re.sub("v\s", "", line)
-                numbers = numbers.split(' ')
+                numbers = numbers.split(" ")
                 numbers = [float(number) for number in numbers]
-                x, y, z = numbers # z will be used in 3D only
+                x, y, z = numbers  # z will be used in 3D only
                 vertexes.append(Coordinates(x, y))
 
             if re.search("f\s-?\d+", line):
                 face = re.sub("f\s", "", line)
-                face = face.split(' ')
+                face = face.split(" ")
                 face = [int(f) for f in face]
                 for index in face:
                     if index > 0:
@@ -326,16 +339,17 @@ class Controller:
                     if index < 0:
                         coordinates.append(vertexes[index])
 
-
         match len(coordinates):
             case 0:
-                raise("Invalid .obj: No vertexes found")
+                raise ("Invalid .obj: No vertexes found")
 
             case 1:
                 self.create_point_w_coordinates(coordinates[0], Color.BLACK, name)
 
             case 2:
-                self.create_point_w_coordinates(coordinates[0], coordinates[1], Color.BLACK, name)
-            
+                self.create_point_w_coordinates(
+                    coordinates[0], coordinates[1], Color.BLACK, name
+                )
+
             case _:
                 self.create_wireframe_w_coordinates(coordinates, Color.BLACK, name)
