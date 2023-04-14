@@ -15,6 +15,8 @@ from tkinter import (
     Radiobutton,
     IntVar,
 )
+from pathlib import Path
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -436,6 +438,26 @@ class Graphic_Viewer:
             text="Apply",
         ).pack(side="right")
 
+    def export_window(self):
+        if not self._display_file_list.curselection():
+            return
+
+        index = self._display_file_list.curselection()[0]
+
+        name_selected = self._display_file_list.get(index)
+
+        export_window = Toplevel(self._main_window)
+        export_window.title("Export")
+
+        Label(export_window, text="Path").pack()
+
+        path = Entry(export_window, width=30)
+        path.insert(0, Path().home() / f"{name_selected}.obj")
+        path.pack()
+
+        Button(export_window, text="Confirm").pack()
+
+
     def init_window_function(self):
         window_function = Frame(
             self._main_window, highlightbackground="grey", highlightthickness=2
@@ -474,6 +496,10 @@ class Graphic_Viewer:
         # display_file_popup.add_separator
         display_file_popup.add_command(
             label="Transform", command=lambda: self.transform_window()
+        )
+
+        display_file_popup.add_command(
+            label="Export", command=lambda: self.export_window()
         )
 
         display_file_list.bind(
