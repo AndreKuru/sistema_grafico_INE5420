@@ -347,7 +347,7 @@ class Controller:
                 self.create_point_w_coordinates(coordinates[0], Color.BLACK, name)
 
             case 2:
-                self.create_point_w_coordinates(
+                self.create_line_w_coordinates(
                     coordinates[0], coordinates[1], Color.BLACK, name
                 )
 

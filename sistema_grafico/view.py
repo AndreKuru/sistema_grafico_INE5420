@@ -70,7 +70,9 @@ class Graphic_Viewer:
         self._canvas.delete("all")
 
     def insert_drawable(self, name: str):
-        if not name in self._display_file_list.get(1):
+        if name in self._display_file_list.get(1):
+            print(f"{name} already exists. Overwritting...")
+        else:    
             self._display_file_list.insert("end", name)
 
     def ask_coordinates(self, coord_frame):
