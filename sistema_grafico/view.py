@@ -70,9 +70,9 @@ class Graphic_Viewer:
         self._canvas.delete("all")
 
     def insert_drawable(self, name: str):
-        if name in self._display_file_list.get(1):
+        if name in self._display_file_list.get(0):
             print(f"{name} already exists. Overwritting...")
-        else:    
+        else:
             self._display_file_list.insert("end", name)
 
     def ask_coordinates(self, coord_frame):
@@ -442,30 +442,6 @@ class Graphic_Viewer:
             text="Apply",
         ).pack(side="right")
 
-    #    def export_window(self):
-    #        if not self._display_file_list.curselection():
-    #            return
-    #
-    #        index = self._display_file_list.curselection()[0]
-    #
-    #        name_selected = self._display_file_list.get(index)
-    #
-    #        export_window = Toplevel(self._main_window)
-    #        export_window.title("Export")
-    #
-    #        path_frame = Frame(export_window)
-    #        path_frame.pack()
-    #
-    #        Label(path_frame, text="Path").pack(side="left")
-    #
-    #        path = Entry(path_frame, width=30)
-    #        path.insert(0, Path().home() / f"{name_selected}.obj")
-    #        path.pack(side="left")
-    #
-    #        Button(path_frame, text="...", command=lambda: asksaveasfile(initialdir=Path(__file__).parents[1] / "export files", initialfile=f"{name_selected}.obj")).pack(side="left")
-    #
-    #        Button(export_window, text="Confirm", command=lambda: self.controller.export_obj()).pack()
-
     def export_item(self):
         if not self._display_file_list.curselection():
             return
@@ -662,5 +638,5 @@ class Graphic_Viewer:
         )
 
     def run(self):
-        self.controller.create_point(0, 0, Color.BLACK)
+        # self.controller.create_point(0, 0, Color.BLACK)
         self._main_window.mainloop()
