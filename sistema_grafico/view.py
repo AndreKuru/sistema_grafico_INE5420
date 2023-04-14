@@ -15,6 +15,7 @@ from tkinter import (
     Radiobutton,
     IntVar,
 )
+from tkinter.filedialog import askopenfile, asksaveasfile
 from pathlib import Path
 
 from typing import TYPE_CHECKING
@@ -455,7 +456,7 @@ class Graphic_Viewer:
         path.insert(0, Path().home() / f"{name_selected}.obj")
         path.pack()
 
-        Button(export_window, text="Confirm").pack()
+        Button(export_window, text="Confirm", command=lambda: asksaveasfile()).pack()
 
 
     def init_window_function(self):
@@ -508,6 +509,10 @@ class Graphic_Viewer:
 
         create_frame = Frame(display_file_frame)
         create_frame.pack()
+
+        import_button = Button(
+            create_frame, text="Import"
+        )
 
         label = Label(create_frame, text="Create:").pack()
 
