@@ -6,6 +6,7 @@ from model import Coordinates, Point, Line, Wireframe, Drawable, Area2d, Color
 from math import sin, cos, radians
 from numpy import double, dot
 from copy import deepcopy
+from pathlib import Path
 
 if TYPE_CHECKING:
     from view import Graphic_Viewer
@@ -253,3 +254,32 @@ class Controller:
             transformations, Point(Coordinates(0, 0)), self._transformation_NDC
         )
         self.transform_display_file_NDC()
+
+    def export_obj(self, name: str) -> str:
+        drawable = self._display_file[name]
+
+        match drawable:
+            case Point():
+                vertexes = [drawable.coordinates]
+                
+            case Line():
+                vertexes = [drawable.endpoint1, drawable.endpoint2]
+            
+            case Wireframe():
+                vertexes = drawable.vertexes
+                
+        output_content = f"o {name}\n"
+        for vertex in vertexes:
+            output_content = output_content + f"\nv {float(vertex.x)} {float(vertex.y)} 0"
+
+        output_content = output_content + "\n\nf"
+
+        # Relative
+        #  for i in range(-len(vertexes), 0):
+        #      output_content = output_content + f" {i}"
+
+        # Absolute
+        for i in range(1, len(vertexes) + 1):
+            output_content = output_content + f" {i}"
+        
+        return output_content

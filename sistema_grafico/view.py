@@ -439,7 +439,31 @@ class Graphic_Viewer:
             text="Apply",
         ).pack(side="right")
 
-    def export_window(self):
+#    def export_window(self):
+#        if not self._display_file_list.curselection():
+#            return
+#
+#        index = self._display_file_list.curselection()[0]
+#
+#        name_selected = self._display_file_list.get(index)
+#
+#        export_window = Toplevel(self._main_window)
+#        export_window.title("Export")
+#
+#        path_frame = Frame(export_window)
+#        path_frame.pack()
+#
+#        Label(path_frame, text="Path").pack(side="left")
+#
+#        path = Entry(path_frame, width=30)
+#        path.insert(0, Path().home() / f"{name_selected}.obj")
+#        path.pack(side="left")
+#
+#        Button(path_frame, text="...", command=lambda: asksaveasfile(initialdir=Path(__file__).parents[1] / "export files", initialfile=f"{name_selected}.obj")).pack(side="left")
+#
+#        Button(export_window, text="Confirm", command=lambda: self.controller.export_obj()).pack()
+
+    def export_item(self):
         if not self._display_file_list.curselection():
             return
 
@@ -447,16 +471,17 @@ class Graphic_Viewer:
 
         name_selected = self._display_file_list.get(index)
 
-        export_window = Toplevel(self._main_window)
-        export_window.title("Export")
+        filepath = asksaveasfile(initialdir=Path(__file__).parents[1] / "export files", initialfile=f"{name_selected}", defaultextension=".obj")
 
-        Label(export_window, text="Path").pack()
+        if not filepath:
+            return
 
-        path = Entry(export_window, width=30)
-        path.insert(0, Path().home() / f"{name_selected}.obj")
-        path.pack()
+        filepath = Path(filepath.name)
 
-        Button(export_window, text="Confirm", command=lambda: asksaveasfile()).pack()
+        content = self.controller.export_obj(name_selected)
+
+        with filepath.open("w") as file:
+            file.write(content)
 
 
     def init_window_function(self):
@@ -500,7 +525,7 @@ class Graphic_Viewer:
         )
 
         display_file_popup.add_command(
-            label="Export", command=lambda: self.export_window()
+            label="Export", command=lambda: self.export_item()
         )
 
         display_file_list.bind(
@@ -600,4 +625,5 @@ class Graphic_Viewer:
         )
 
     def run(self):
+        self.controller.create_point(0, 0, Color.BLACK)
         self._main_window.mainloop()
