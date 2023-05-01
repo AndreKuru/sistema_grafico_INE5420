@@ -32,6 +32,8 @@ ORIGIN = 1
 SELECTED_OBJECT = 2
 ARBITRARY_POSITION = 3
 
+VIEWPORT_MARGIN_SIZE = 25
+
 
 @dataclass
 class Graphic_Viewer:
@@ -50,11 +52,9 @@ class Graphic_Viewer:
         self._viewport = Area2d(Coordinates(0, 0), Coordinates(width, height))
         self._canvas = Canvas(
             viewport_frame,
-            width=width,
-            height=height,
+            width=width + 2 * VIEWPORT_MARGIN_SIZE,
+            height=height + 2 * VIEWPORT_MARGIN_SIZE,
             background="white",
-            border=10,
-            relief="raised",
         )
         self._canvas.pack()
 
@@ -612,17 +612,32 @@ class Graphic_Viewer:
             text="CW",
         ).pack(side="left")
 
+    def clip_point(self, coordinates: Coordinates) -> Coordinates | None:
+        if (
+            coordinates.x > 0
+            and coordinates.x < self._viewport.max.x
+            and coordinates.y > 0
+            and coordinates.y < self._viewport.max.y
+        ):
+            return coordinates + Coordinates(VIEWPORT_MARGIN_SIZE, VIEWPORT_MARGIN_SIZE)
+
+        return None
+
     def draw_point(self, drawable_coordinates: Coordinates, color: Color):
         coordinates = self.controller.transform_window_to_viewport(drawable_coordinates)
 
-        self._canvas.create_oval(
-            coordinates.x - 2,
-            coordinates.y - 2,
-            coordinates.x + 2,
-            coordinates.y + 2,
-            fill=color.value,
-            outline="",
-        )
+        coordinates = self.clip_point(coordinates)
+
+        if coordinates:
+            self._canvas.create_oval(
+                coordinates.x - 2,
+                coordinates.y - 2,
+                coordinates.x + 2,
+                coordinates.y + 2,
+                fill=color.value,
+                outline="",
+            )
+
         # self._canvas.create_line(100, 200, 200, 35, fill=COLOR, width=WIDTH)
         # p = 300
         # self._canvas.create_oval(300, 300, 300+3, 300+3, fill="black", outline="")
@@ -637,6 +652,15 @@ class Graphic_Viewer:
             endpoint1.x, endpoint1.y, endpoint2.x, endpoint2.y, fill=color.value
         )
 
+    def draw_viewport_border(self):
+        self._canvas.create_rectangle(
+            VIEWPORT_MARGIN_SIZE,
+            VIEWPORT_MARGIN_SIZE,
+            self._viewport.max.x + VIEWPORT_MARGIN_SIZE,
+            self._viewport.max.y + VIEWPORT_MARGIN_SIZE,
+        )
+
     def run(self):
+        self.draw_viewport_border()
         # self.controller.create_point(0, 0, Color.BLACK)
         self._main_window.mainloop()

@@ -43,9 +43,6 @@ class Controller:
             y_vp_max - y_vp_min
         )
 
-        viewport_x = viewport_x - self._window.max.x / 2
-        viewport_y = viewport_y - self._window.max.y / 2
-
         viewport_coordinates = Coordinates(int(viewport_x), int(viewport_y))
 
         return viewport_coordinates
@@ -150,6 +147,7 @@ class Controller:
         self._drawer.clear()
         for drawable in self._display_file_NDC.values():
             drawable.draw(self._drawer)
+        self._drawer.draw_viewport_border()
 
     def size_window(self) -> Coordinates:
         return Coordinates(
@@ -157,9 +155,7 @@ class Controller:
         )
 
     def pan_window(self, movement: Coordinates, step: float):
-        window = self.size_window()
-        window.multiply_scalar(step)
-        translate = ("t", movement.x * window.x, movement.y * window.y)
+        translate = ("t", movement.x * step, movement.y * step)
         self.transform_window([translate])
         self.redraw()
 
