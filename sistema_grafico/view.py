@@ -32,7 +32,7 @@ ORIGIN = 1
 SELECTED_OBJECT = 2
 ARBITRARY_POSITION = 3
 
-VIEWPORT_MARGIN_SIZE = 25
+VIEWPORT_MARGIN_SIZE = 50
 
 
 @dataclass
@@ -49,7 +49,10 @@ class Graphic_Viewer:
 
         width = 700
         height = 700
-        self._viewport = Area2d(Coordinates(0, 0), Coordinates(width, height))
+        self._viewport = Area2d(
+            Coordinates(VIEWPORT_MARGIN_SIZE, VIEWPORT_MARGIN_SIZE),
+            Coordinates(width + VIEWPORT_MARGIN_SIZE, height + VIEWPORT_MARGIN_SIZE),
+        )
         self._canvas = Canvas(
             viewport_frame,
             width=width + 2 * VIEWPORT_MARGIN_SIZE,
@@ -614,12 +617,12 @@ class Graphic_Viewer:
 
     def clip_point(self, coordinates: Coordinates) -> Coordinates | None:
         if (
-            coordinates.x > 0
+            coordinates.x > self._viewport.min.x
             and coordinates.x < self._viewport.max.x
-            and coordinates.y > 0
+            and coordinates.y > self._viewport.min.y
             and coordinates.y < self._viewport.max.y
         ):
-            return coordinates + Coordinates(VIEWPORT_MARGIN_SIZE, VIEWPORT_MARGIN_SIZE)
+            return coordinates
 
         return None
 
@@ -642,25 +645,128 @@ class Graphic_Viewer:
         # p = 300
         # self._canvas.create_oval(300, 300, 300+3, 300+3, fill="black", outline="")
 
-    def draw_line(
-        self, window_endpoint1: Coordinates, window_endpoint2: Coordinates, color: Color
-    ):
-        endpoint1 = self.controller.transform_window_to_viewport(window_endpoint1)
-        endpoint2 = self.controller.transform_window_to_viewport(window_endpoint2)
+    def get_region_code(self, endpoint: Coordinates) -> str:  # binary number
+        # Over the top
+        if endpoint.y > self._viewport.min.y:
+            region_code = "0"
+        else:
+            region_code = "1"
 
-        self._canvas.create_line(
-            endpoint1.x, endpoint1.y, endpoint2.x, endpoint2.y, fill=color.value
-        )
+        # Over the bottom
+        if endpoint.y < self._viewport.max.y:
+            region_code = region_code + "0"
+        else:
+            region_code = region_code + "1"
+
+        # Over the right
+        if endpoint.x < self._viewport.max.x:
+            region_code = region_code + "0"
+        else:
+            region_code = region_code + "1"
+
+        # Over the left
+        if endpoint.x > self._viewport.min.x:
+            region_code = region_code + "0"
+        else:
+            region_code = region_code + "1"
+
+        return region_code
+
+    def clip_point_Cohen_Sutherland(
+        self, endpoint: Coordinates, region_code: str, angular_coeficient: int
+    ) -> Coordinates:
+        new_endpoint = None
+
+        if region_code[0] == "1":  # Over the top
+            new_endpoint = Coordinates(
+                endpoint.x
+                + (1 / angular_coeficient) * (self._viewport.min.y - endpoint.y),
+                self._viewport.min.y,
+            )
+        elif region_code[1] == "1":  # Over the bottom
+            new_endpoint = Coordinates(
+                endpoint.x
+                + (1 / angular_coeficient) * (self._viewport.max.y - endpoint.y),
+                self._viewport.max.y,
+            )
+
+        if (
+            new_endpoint
+            and new_endpoint.x >= self._viewport.min.x
+            and new_endpoint.x <= self._viewport.max.x
+        ):
+            return new_endpoint
+
+        if region_code[2] == "1":  # Over the right
+            new_endpoint = Coordinates(
+                self._viewport.max.x,
+                angular_coeficient * (self._viewport.max.x - endpoint.x) + endpoint.y,
+            )
+        elif region_code[3] == "1":  # Over the left
+            new_endpoint = Coordinates(
+                self._viewport.min.x,
+                angular_coeficient * (self._viewport.min.x - endpoint.x) + endpoint.y,
+            )
+
+        if (
+            new_endpoint.y >= self._viewport.min.y
+            and new_endpoint.y <= self._viewport.max.y
+        ):
+            return new_endpoint
+
+        return None
+
+    def clip_line_Cohen_Sutherland(
+        self, endpoint1: Coordinates, endpoint2: Coordinates
+    ) -> tuple[Coordinates | None, Coordinates | None]:
+        region_code1 = self.get_region_code(endpoint1)
+        region_code2 = self.get_region_code(endpoint2)
+
+        if int(region_code1, 2) + int(region_code2, 2) == 0:
+            return endpoint1, endpoint2
+
+        if int(region_code1, 2) & int(region_code2, 2) != 0:
+            return None, None
+
+        angular_coeficient = (endpoint2.y - endpoint1.y) / (endpoint2.x - endpoint1.x)
+
+        if int(region_code1) != 0:
+            endpoint1 = self.clip_point_Cohen_Sutherland(
+                endpoint1, region_code1, angular_coeficient
+            )
+
+        if not endpoint1:
+            return None, None
+
+        if int(region_code2) != 0:
+            endpoint2 = self.clip_point_Cohen_Sutherland(
+                endpoint2, region_code2, angular_coeficient
+            )
+
+        return endpoint1, endpoint2
+
+    def draw_line(self, endpoint1: Coordinates, endpoint2: Coordinates, color: Color):
+        endpoint1 = self.controller.transform_window_to_viewport(endpoint1)
+        endpoint2 = self.controller.transform_window_to_viewport(endpoint2)
+
+        endpoint1, endpoint2 = self.clip_line_Cohen_Sutherland(endpoint1, endpoint2)
+
+        if endpoint1 and endpoint2:
+            self._canvas.create_line(
+                endpoint1.x, endpoint1.y, endpoint2.x, endpoint2.y, fill=color.value
+            )
 
     def draw_viewport_border(self):
         self._canvas.create_rectangle(
-            VIEWPORT_MARGIN_SIZE,
-            VIEWPORT_MARGIN_SIZE,
-            self._viewport.max.x + VIEWPORT_MARGIN_SIZE,
-            self._viewport.max.y + VIEWPORT_MARGIN_SIZE,
+            self._viewport.min.x,
+            self._viewport.min.y,
+            self._viewport.max.x,
+            self._viewport.max.y,
         )
 
     def run(self):
         self.draw_viewport_border()
         # self.controller.create_point(0, 0, Color.BLACK)
+        # self.controller.create_line(0, 0, 1, 1, Color.MAGENTA)
+        # self.controller.create_line(0, 1, 1, 0, Color.MAGENTA)
         self._main_window.mainloop()
