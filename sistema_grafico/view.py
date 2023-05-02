@@ -50,8 +50,8 @@ class Graphic_Viewer:
         width = 700
         height = 700
         self._viewport = Area2d(
-            Coordinates(VIEWPORT_MARGIN_SIZE, VIEWPORT_MARGIN_SIZE),
-            Coordinates(width + VIEWPORT_MARGIN_SIZE, height + VIEWPORT_MARGIN_SIZE),
+            # Coordinates(VIEWPORT_MARGIN_SIZE, VIEWPORT_MARGIN_SIZE),
+            # Coordinates(width + VIEWPORT_MARGIN_SIZE, height + VIEWPORT_MARGIN_SIZE),
         )
         self._canvas = Canvas(
             viewport_frame,
@@ -744,12 +744,72 @@ class Graphic_Viewer:
             )
 
         return endpoint1, endpoint2
+    
+    def clip_point_Liang_Barsky(self, endpoint: Coordinates, p: list[int]) -> Coordinates | None:
+        q = list()
+        q.append(endpoint.x - self._viewport.min.x)
+        q.append(self._viewport.max.x - endpoint.x)
+        q.append(endpoint.y - self._viewport.min.y)
+        q.append(self._viewport.max.y - endpoint.y)
+
+        zeta1 = [0]
+        zeta2 = [1]
+
+        for i in range(4):
+            if p[i] < 0:
+                zeta1.append(q[i] / p[i])
+            else:
+                zeta2.append(q[i] / p[i])
+        
+        zeta1 = max(zeta1)
+        zeta2 = min(zeta2)
+
+        if zeta1 > zeta2:
+            return None
+
+        if zeta1 > 0:
+            endpoint.multiply_scalar(zeta1)
+        else: 
+            endpoint.multiply_scalar(zeta2)
+
+        return endpoint
+
+
+    def clip_line_Liang_Barsky(self, endpoint1: Coordinates, endpoint2: Coordinates) -> tuple[Coordinates | None, Coordinates | None]:
+        p = list()
+        p.append(- (endpoint2.x - endpoint1.x))
+        p.append(endpoint2.x - endpoint1.x)
+        p.append(- (endpoint2.y - endpoint1.y))
+        p.append(endpoint2.y - endpoint1.y)
+
+        if (
+            endpoint1.x < self._viewport.min.x or
+            endpoint1.x > self._viewport.max.x or
+            endpoint1.y < self._viewport.min.y or
+            endpoint1.y > self._viewport.max.y
+        ):
+            endpoint1 = self.clip_point_Liang_Barsky(endpoint1, p)
+
+        if not endpoint1:
+            return None, None
+        
+        if (
+            endpoint2.x < self._viewport.min.x or
+            endpoint2.x > self._viewport.max.x or
+            endpoint2.y < self._viewport.min.y or
+            endpoint2.y > self._viewport.max.y
+        ):
+            endpoint2 = self.clip_point_Liang_Barsky(endpoint2, [-x for x in p])
+        
+        return endpoint1, endpoint2
 
     def draw_line(self, endpoint1: Coordinates, endpoint2: Coordinates, color: Color):
         endpoint1 = self.controller.transform_window_to_viewport(endpoint1)
         endpoint2 = self.controller.transform_window_to_viewport(endpoint2)
 
-        endpoint1, endpoint2 = self.clip_line_Cohen_Sutherland(endpoint1, endpoint2)
+        # endpoint1, endpoint2 = self.clip_line_Cohen_Sutherland(endpoint1, endpoint2)
+        
+        endpoint1, endpoint2 = self.clip_line_Liang_Barsky(endpoint1, endpoint2)
 
         if endpoint1 and endpoint2:
             self._canvas.create_line(

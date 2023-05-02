@@ -43,7 +43,10 @@ class Controller:
             y_vp_max - y_vp_min
         )
 
-        viewport_coordinates = Coordinates(int(viewport_x), int(viewport_y))
+        viewport_coordinates = Coordinates(
+            viewport_x + self._drawer._viewport.min.x, 
+            viewport_y + self._drawer._viewport.min.y
+            )
 
         return viewport_coordinates
 
