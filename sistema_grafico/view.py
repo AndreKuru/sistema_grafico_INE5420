@@ -50,8 +50,8 @@ class Graphic_Viewer:
         width = 700
         height = 700
         self._viewport = Area2d(
-        Coordinates(VIEWPORT_MARGIN_SIZE, VIEWPORT_MARGIN_SIZE),
-        Coordinates(width + VIEWPORT_MARGIN_SIZE, height + VIEWPORT_MARGIN_SIZE),
+            Coordinates(VIEWPORT_MARGIN_SIZE, VIEWPORT_MARGIN_SIZE),
+            Coordinates(width + VIEWPORT_MARGIN_SIZE, height + VIEWPORT_MARGIN_SIZE),
         )
         self._canvas = Canvas(
             viewport_frame,
@@ -615,31 +615,17 @@ class Graphic_Viewer:
             text="CW",
         ).pack(side="left")
 
-    def clip_point(self, coordinates: Coordinates) -> Coordinates | None:
-        if (
-            coordinates.x > self._viewport.min.x
-            and coordinates.x < self._viewport.max.x
-            and coordinates.y > self._viewport.min.y
-            and coordinates.y < self._viewport.max.y
-        ):
-            return coordinates
-
-        return None
-
     def draw_point(self, drawable_coordinates: Coordinates, color: Color):
         coordinates = self.controller.transform_window_to_viewport(drawable_coordinates)
 
-        coordinates = self.clip_point(coordinates)
-
-        if coordinates:
-            self._canvas.create_oval(
-                coordinates.x - 2,
-                coordinates.y - 2,
-                coordinates.x + 2,
-                coordinates.y + 2,
-                fill=color.value,
-                outline="",
-            )
+        self._canvas.create_oval(
+            coordinates.x - 2,
+            coordinates.y - 2,
+            coordinates.x + 2,
+            coordinates.y + 2,
+            fill=color.value,
+            outline="",
+        )
 
         # self._canvas.create_line(100, 200, 200, 35, fill=COLOR, width=WIDTH)
         # p = 300
@@ -826,7 +812,7 @@ class Graphic_Viewer:
 
     def run(self):
         self.draw_viewport_border()
-        # self.controller.create_point(0, 0, Color.BLACK)
+        self.controller.create_point(0, 0, Color.BLACK)
         # self.controller.create_line(0, 0, 1, 1, Color.MAGENTA)
         # self.controller.create_line(0, 1, 1, 0, Color.MAGENTA)
         self._main_window.mainloop()

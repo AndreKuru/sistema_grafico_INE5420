@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 @dataclass
 class Controller:
     _drawer: Optional["Graphic_Viewer"] = None
-    _window: Area2d = Area2d(Coordinates(0, 0), Coordinates(200, 200))
+    _window: Area2d = field(default=lambda: Area2d(Coordinates(0, 0), Coordinates(200, 200)))
     _display_file: dict[Drawable] = field(default_factory=dict)
     _display_file_NDC: dict[Drawable] = field(default_factory=dict)
     _transformation_NDC: list[list[int | double | float]] = field(
@@ -149,7 +149,9 @@ class Controller:
     def redraw(self):
         self._drawer.clear()
         for drawable in self._display_file_NDC.values():
-            drawable.draw(self._drawer)
+            drawable_clipped = drawable.clip_NDC()
+            if drawable_clipped:
+                drawable_clipped.draw(self._drawer)
         self._drawer.draw_viewport_border()
 
     def size_window(self) -> Coordinates:
@@ -352,3 +354,4 @@ class Controller:
 
             case _:
                 self.create_wireframe_w_coordinates(coordinates, Color.BLACK, name)
+    

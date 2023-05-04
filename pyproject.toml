@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "sistema_grafico_ine5420"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 black = "^23.3.0"
 pytest = "^7.3.0"
 numpy = "^1.24.2"

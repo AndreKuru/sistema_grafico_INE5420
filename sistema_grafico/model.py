@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Protocol
+from copy import deepcopy
 
 from numpy import double, dot
 from enum import Enum
@@ -13,6 +14,9 @@ class Color(Enum):
     CYAN = "Cyan"
     YELLOW = "Yellow"
     MAGENTA = "Magenta"
+
+WINDOW_NDC_MIN = -1
+WINDOW_NDC_MAX = 1
 
 
 @dataclass
@@ -76,7 +80,9 @@ class Drawable(Protocol):
 
     def calculate_center(self):
         ...
-
+    
+    def clip_NDC(self):
+        ...
 
 @dataclass
 class Point:
@@ -92,6 +98,17 @@ class Point:
     def calculate_center(self):
         center = self.coordinates
         return center
+    
+    def clip_NDC(self): #-> Point | None:
+        if (
+            self.coordinates.x > WINDOW_NDC_MIN
+            and self.coordinates.x < WINDOW_NDC_MAX
+            and self.coordinates.y > WINDOW_NDC_MIN
+            and self.coordinates.y < WINDOW_NDC_MAX
+        ):
+            return deepcopy(self)
+
+        return None
 
 
 @dataclass
