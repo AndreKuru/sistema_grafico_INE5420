@@ -50,8 +50,8 @@ class Graphic_Viewer:
         width = 700
         height = 700
         self._viewport = Area2d(
-            # Coordinates(VIEWPORT_MARGIN_SIZE, VIEWPORT_MARGIN_SIZE),
-            # Coordinates(width + VIEWPORT_MARGIN_SIZE, height + VIEWPORT_MARGIN_SIZE),
+        Coordinates(VIEWPORT_MARGIN_SIZE, VIEWPORT_MARGIN_SIZE),
+        Coordinates(width + VIEWPORT_MARGIN_SIZE, height + VIEWPORT_MARGIN_SIZE),
         )
         self._canvas = Canvas(
             viewport_frame,
