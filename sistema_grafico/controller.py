@@ -16,7 +16,9 @@ if TYPE_CHECKING:
 @dataclass
 class Controller:
     _drawer: Optional["Graphic_Viewer"] = None
-    _window: Area2d = field(default=lambda: Area2d(Coordinates(0, 0), Coordinates(200, 200)))
+    _window: Area2d = field(
+        default=lambda: Area2d(Coordinates(0, 0), Coordinates(200, 200))
+    )
     _display_file: dict[Drawable] = field(default_factory=dict)
     _display_file_NDC: dict[Drawable] = field(default_factory=dict)
     _transformation_NDC: list[list[int | double | float]] = field(
@@ -44,9 +46,9 @@ class Controller:
         )
 
         viewport_coordinates = Coordinates(
-            viewport_x + self._drawer._viewport.min.x, 
-            viewport_y + self._drawer._viewport.min.y
-            )
+            viewport_x + self._drawer._viewport.min.x,
+            viewport_y + self._drawer._viewport.min.y,
+        )
 
         return viewport_coordinates
 
@@ -354,4 +356,3 @@ class Controller:
 
             case _:
                 self.create_wireframe_w_coordinates(coordinates, Color.BLACK, name)
-    
