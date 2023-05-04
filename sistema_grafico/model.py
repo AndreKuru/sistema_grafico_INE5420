@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, Self
 from copy import deepcopy
 
 from numpy import double, dot
@@ -15,8 +15,10 @@ class Color(Enum):
     YELLOW = "Yellow"
     MAGENTA = "Magenta"
 
-WINDOW_NDC_MIN = -1
-WINDOW_NDC_MAX = 1
+WINDOW_NDC_MIN_X = -1
+WINDOW_NDC_MIN_Y = -1
+WINDOW_NDC_MAX_X = 1
+WINDOW_NDC_MAX_Y = 1
 
 
 @dataclass
@@ -35,8 +37,9 @@ class Coordinates:
         return Coordinates(x, y)
 
     def multiply_scalar(self, other: int | double | float):
-        self.x = self.x * (other)
-        self.y = self.y * (other)
+        x = self.x * (other)
+        y = self.y * (other)
+        return Coordinates(x, y)
 
 
 @dataclass
@@ -52,7 +55,7 @@ class Area2d:
         self.max = self.max + movement
 
     def zoom(self, ammount: float):
-        self.max.multiply_scalar(1 + ammount)
+        self.max = self.max.multiply_scalar(1 + ammount)
 
 
 class Drawer(Protocol):
@@ -81,7 +84,7 @@ class Drawable(Protocol):
     def calculate_center(self):
         ...
     
-    def clip_NDC(self):
+    def clip_NDC(self, default: bool = True):
         ...
 
 @dataclass
@@ -99,17 +102,89 @@ class Point:
         center = self.coordinates
         return center
     
-    def clip_NDC(self): #-> Point | None:
+    def clip_NDC(self, default: bool = True) -> Self | None:
         if (
-            self.coordinates.x > WINDOW_NDC_MIN
-            and self.coordinates.x < WINDOW_NDC_MAX
-            and self.coordinates.y > WINDOW_NDC_MIN
-            and self.coordinates.y < WINDOW_NDC_MAX
+            self.coordinates.x > WINDOW_NDC_MIN_X
+            and self.coordinates.x < WINDOW_NDC_MAX_X
+            and self.coordinates.y > WINDOW_NDC_MIN_Y
+            and self.coordinates.y < WINDOW_NDC_MAX_Y
         ):
             return deepcopy(self)
 
         return None
 
+def clip_point_Liang_Barsky(endpoint: Coordinates, p: list[int]) -> Coordinates | None:
+    q = list()
+    q.append(endpoint.x - WINDOW_NDC_MIN_X)
+    q.append(WINDOW_NDC_MAX_X - endpoint.x)
+    q.append(endpoint.y - WINDOW_NDC_MIN_Y)
+    q.append(WINDOW_NDC_MAX_Y - endpoint.y)
+
+    zeta1 = [0]
+    zeta2 = [1]
+
+    for i in range(4):
+        if p[i] < 0:
+            zeta1.append(q[i] / p[i])
+        else:
+            zeta2.append(q[i] / p[i])
+    
+    zeta1 = max(zeta1)
+    zeta2 = min(zeta2)
+
+    if zeta1 > zeta2:
+        return None
+
+    if zeta1 > 0:
+        endpoint = endpoint.multiply_scalar(zeta1)
+    else: 
+        endpoint = endpoint.multiply_scalar(zeta2)
+
+    return endpoint
+
+def clip_point_Cohen_Sutherland(
+    endpoint: Coordinates, region_code: str, angular_coeficient: int
+) -> Coordinates:
+    new_endpoint = None
+
+    if region_code[0] == "1":  # Over the top
+        new_endpoint = Coordinates(
+            endpoint.x
+            + (1 / angular_coeficient) * (WINDOW_NDC_MAX_Y - endpoint.y),
+            WINDOW_NDC_MAX_Y,
+        )
+    elif region_code[1] == "1":  # Over the bottom
+        new_endpoint = Coordinates(
+            endpoint.x
+            + (1 / angular_coeficient) * (WINDOW_NDC_MIN_Y - endpoint.y),
+            WINDOW_NDC_MIN_Y,
+        )
+
+    if (
+        new_endpoint
+        and new_endpoint.x >= WINDOW_NDC_MIN_X
+        and new_endpoint.x <= WINDOW_NDC_MAX_X
+    ):
+        return new_endpoint
+
+    if region_code[2] == "1":  # Over the right
+        new_endpoint = Coordinates(
+            WINDOW_NDC_MAX_X,
+            angular_coeficient * (WINDOW_NDC_MAX_X - endpoint.x) + endpoint.y,
+        )
+    elif region_code[3] == "1":  # Over the left
+        new_endpoint = Coordinates(
+            WINDOW_NDC_MIN_X,
+            angular_coeficient * (WINDOW_NDC_MIN_X - endpoint.x) + endpoint.y,
+        )
+
+    if (
+        new_endpoint.y >= WINDOW_NDC_MIN_Y
+        and new_endpoint.y <= WINDOW_NDC_MAX_Y
+    ):
+        return new_endpoint
+
+    return None
 
 @dataclass
 class Line:
@@ -129,6 +204,103 @@ class Line:
         y_center = (self.endpoint1.y + self.endpoint2.y) / 2
         center = Coordinates(x_center, y_center)
         return center
+
+    def get_region_code(self, endpoint: Coordinates) -> str:  # binary number
+        # Over the top
+        if endpoint.y > WINDOW_NDC_MAX_Y:
+            region_code = "1"
+        else:
+            region_code = "0"
+
+        # Over the bottom
+        if endpoint.y < WINDOW_NDC_MIN_Y:
+            region_code = region_code + "1"
+        else:
+            region_code = region_code + "0"
+
+        # Over the right
+        if endpoint.x > WINDOW_NDC_MAX_X:
+            region_code = region_code + "1"
+        else:
+            region_code = region_code + "0"
+
+        # Over the left
+        if endpoint.x < WINDOW_NDC_MIN_X:
+            region_code = region_code + "1"
+        else:
+            region_code = region_code + "0"
+
+        return region_code
+
+    def clip_line_Cohen_Sutherland( self) -> Self | None:
+        region_code1 = self.get_region_code(self.endpoint1)
+        region_code2 = self.get_region_code(self.endpoint2)
+
+        if int(region_code1, 2) + int(region_code2, 2) == 0:
+            return deepcopy(self)
+
+        if int(region_code1, 2) & int(region_code2, 2) != 0:
+            return None
+
+        angular_coeficient = (self.endpoint2.y - self.endpoint1.y) / (self.endpoint2.x - self.endpoint1.x)
+
+        if int(region_code1) != 0:
+            endpoint1 = clip_point_Cohen_Sutherland(
+                self.endpoint1, region_code1, angular_coeficient
+            )
+        else:
+            endpoint1 = deepcopy(self.endpoint1)
+
+        if not endpoint1:
+            return None
+
+        if int(region_code2) != 0:
+            endpoint2 = clip_point_Cohen_Sutherland(
+                self.endpoint2, region_code2, angular_coeficient
+            )
+        else:
+            endpoint2 = deepcopy(self.endpoint2)
+
+        return Line(endpoint1, endpoint2, self.color)
+    
+
+    def clip_line_Liang_Barsky(self) -> Self | None:
+        p = list()
+        p.append(- (self.endpoint2.x - self.endpoint1.x))
+        p.append(self.endpoint2.x - self.endpoint1.x)
+        p.append(- (self.endpoint2.y - self.endpoint1.y))
+        p.append(self.endpoint2.y - self.endpoint1.y)
+
+        if (
+            self.endpoint1.x < WINDOW_NDC_MIN_X or
+            self.endpoint1.x > WINDOW_NDC_MAX_X or
+            self.endpoint1.y < WINDOW_NDC_MIN_Y or
+            self.endpoint1.y > WINDOW_NDC_MAX_Y
+        ):
+            endpoint1 = clip_point_Liang_Barsky(self.endpoint1, p)
+
+            if not endpoint1:
+                return None
+        else:
+            endpoint1 = deepcopy(self.endpoint1)
+        
+        if (
+            self.endpoint2.x < WINDOW_NDC_MIN_X or
+            self.endpoint2.x > WINDOW_NDC_MAX_X or
+            self.endpoint2.y < WINDOW_NDC_MIN_Y or
+            self.endpoint2.y > WINDOW_NDC_MAX_Y
+        ):
+            endpoint2 = clip_point_Liang_Barsky(self.endpoint2, [-x for x in p])
+        else:
+            endpoint2 = deepcopy(self.endpoint2)
+        
+        return Line(endpoint1, endpoint2, self.color)
+    
+    def clip_NDC(self, default: bool = True):
+        if default:
+            return self.clip_line_Cohen_Sutherland()
+        
+        return self.clip_line_Liang_Barsky()
 
 
 @dataclass
