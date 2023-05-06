@@ -126,11 +126,16 @@ def clip_point_Liang_Barsky(endpoint: Coordinates, p: list[int]) -> Coordinates 
     zeta1 = [0]
     zeta2 = [1]
 
+    p_positive = list()
+    p_negative = list()
+
     for i in range(4):
         if p[i] < 0:
             zeta1.append(q[i] / p[i])
+            p_positive.append(p[i])
         else:
             zeta2.append(q[i] / p[i])
+            p_negative.append(p[i])
 
     zeta1 = max(zeta1)
     zeta2 = min(zeta2)
@@ -139,9 +144,13 @@ def clip_point_Liang_Barsky(endpoint: Coordinates, p: list[int]) -> Coordinates 
         return None
 
     if zeta1 > 0:
-        endpoint = endpoint.multiply_scalar(zeta1)
+        x = p_positive[0] * zeta1
+        y = p_positive[1] * zeta1
+        endpoint =  endpoint + Coordinates(x, y)
     else:
-        endpoint = endpoint.multiply_scalar(zeta2)
+        x = p_negative[0] * zeta2
+        y = p_negative[1] * zeta2
+        endpoint =  endpoint + Coordinates(x, y)
 
     return endpoint
 
@@ -297,7 +306,7 @@ class Line:
 
         return Line(endpoint1, endpoint2, self.color)
 
-    def clip_NDC(self, default: bool = True):
+    def clip_NDC(self, default: bool = False):
         if default:
             return self.clip_line_Cohen_Sutherland()
 

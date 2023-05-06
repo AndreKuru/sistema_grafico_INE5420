@@ -164,12 +164,10 @@ class Controller:
     def pan_window(self, movement: Coordinates, step: float):
         translate = ("t", movement.x * step, movement.y * step)
         self.transform_window([translate])
-        self.redraw()
 
     def zoom(self, ammount: Coordinates):
         scalling = ("s", ammount.x, ammount.y)
         self.transform_window([scalling])
-        self.redraw()
 
     def translate(self, transformation: Coordinates):
         matrix = ((1, 0, 0), (0, 1, 0), (transformation.x, transformation.y, 1))
