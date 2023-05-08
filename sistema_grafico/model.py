@@ -232,6 +232,9 @@ class Line:
             )
         else:
             endpoint2 = deepcopy(self.endpoint2)
+        
+        if not endpoint2:
+            return None
 
         return Line(endpoint1, endpoint2, self.color)
 

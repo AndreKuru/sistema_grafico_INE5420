@@ -24,6 +24,11 @@ class Controller:
     _transformation_NDC: list[list[int | double | float]] = field(
         default_factory=lambda: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
     )
+    _clip_default: bool = True
+
+    def set_clip_default(self, default: bool) -> None:
+        self._clip_default = default
+        self.redraw()
 
     def transform_window_to_viewport(self, drawable_in_window: Coordinates):
         x_w_max = 1
@@ -151,7 +156,7 @@ class Controller:
     def redraw(self):
         self._drawer.clear()
         for drawable in self._display_file_NDC.values():
-            drawable_clipped = drawable.clip_NDC()
+            drawable_clipped = drawable.clip_NDC(self._clip_default)
             if drawable_clipped:
                 drawable_clipped.draw(self._drawer)
         self._drawer.draw_viewport_border()

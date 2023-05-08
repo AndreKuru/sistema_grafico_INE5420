@@ -34,6 +34,9 @@ ARBITRARY_POSITION = 3
 
 VIEWPORT_MARGIN_SIZE = 50
 
+DEFAULT = 1
+NOT_DEFAULT = 0
+
 
 @dataclass
 class Graphic_Viewer:
@@ -274,7 +277,6 @@ class Graphic_Viewer:
         scaling_x: Entry,
         scaling_y: Entry,
         angle: Entry,
-        rotate_in: IntVar,
         arbitrary_point_x: Entry,
         arbitrary_point_y: Entry,
         history: Listbox,
@@ -293,7 +295,7 @@ class Graphic_Viewer:
 
             case 2:  # Rotate
                 a = str(float(angle.get()))
-                rotate_in_index = rotate_in.get()
+                rotate_in_index = self.rotate_in.get()
 
                 match rotate_in_index:
                     case 1:  # ORIGIN:
@@ -380,12 +382,12 @@ class Graphic_Viewer:
         arbitrary_point = Frame(rotation_option)
         arbitrary_point_x, arbitrary_point_y = self.ask_coordinates(arbitrary_point)
 
-        rotate_in = IntVar()
+        self.rotate_in = IntVar(None, SELECTED_OBJECT)
 
         origin = Radiobutton(
             rotation_option,
             text="Rotate in origin",
-            variable=rotate_in,
+            variable=self.rotate_in,
             value=ORIGIN,
             command=lambda: self.unask_arbitrary_point(arbitrary_point),
         )
@@ -394,7 +396,7 @@ class Graphic_Viewer:
         selected_object = Radiobutton(
             rotation_option,
             text="Rotate in self center",
-            variable=rotate_in,
+            variable=self.rotate_in,
             value=SELECTED_OBJECT,
             command=lambda: self.unask_arbitrary_point(arbitrary_point),
         )
@@ -403,7 +405,7 @@ class Graphic_Viewer:
         arbitrary_position = Radiobutton(
             rotation_option,
             text="Rotate in arbitrary position",
-            variable=rotate_in,
+            variable=self.rotate_in,
             value=ARBITRARY_POSITION,
             command=lambda: self.ask_arbitrary_point(arbitrary_point),
         )
@@ -429,7 +431,6 @@ class Graphic_Viewer:
                 scaling_x,
                 scaling_y,
                 angle,
-                rotate_in,
                 arbitrary_point_x,
                 arbitrary_point_y,
                 transformations_history,
@@ -561,7 +562,7 @@ class Graphic_Viewer:
         window_control_frame = Frame(window_function)
         window_control_frame.pack()
 
-        window_control_label = Label(window_control_frame, text="Window control").pack()
+        Label(window_control_frame, text="Window control").pack()
 
         # Directions
         directions = Frame(window_control_frame)
@@ -595,7 +596,8 @@ class Graphic_Viewer:
 
         Label(window_rotation, text="Rotate").pack()
 
-        angle = Entry(window_rotation, width=6)
+        angle = Entry(window_rotation, width=6, justify="center")
+        angle.insert(0, "45")
 
         Button(
             window_rotation,
@@ -614,6 +616,36 @@ class Graphic_Viewer:
             ),
             text="CW",
         ).pack(side="left")
+
+        clipping_control_frame = Frame(
+            window_function,
+            highlightbackground="grey",
+                highlightthickness=1
+                                    )
+
+        clipping_control_frame.pack()
+
+        Label(clipping_control_frame, text="Clipping control").pack()
+
+        self.line_clip = IntVar(None, DEFAULT)
+
+        Radiobutton(
+            clipping_control_frame, 
+            text="Cohen Sutherland",
+            variable=self.line_clip,
+            value=DEFAULT,
+            command=lambda: self.controller.set_clip_default(True)
+            ).pack()
+
+
+        Radiobutton(
+            clipping_control_frame, 
+            text="Liang Barsky",
+            variable=self.line_clip,
+            value=NOT_DEFAULT,
+            command=lambda: self.controller.set_clip_default(False)
+            ).pack()
+
 
     def draw_point(self, drawable_coordinates: Coordinates, color: Color):
         coordinates = self.controller.transform_window_to_viewport(drawable_coordinates)
