@@ -116,45 +116,6 @@ class Point:
         return None
 
 
-def clip_point_Liang_Barsky(endpoint: Coordinates, p: list[int]) -> Coordinates | None:
-    q = list()
-    q.append(endpoint.x - WINDOW_NDC_MIN_X)
-    q.append(WINDOW_NDC_MAX_X - endpoint.x)
-    q.append(endpoint.y - WINDOW_NDC_MIN_Y)
-    q.append(WINDOW_NDC_MAX_Y - endpoint.y)
-
-    zeta1 = [0]
-    zeta2 = [1]
-
-    p_positive = list()
-    p_negative = list()
-
-    for i in range(4):
-        if p[i] < 0:
-            zeta1.append(q[i] / p[i])
-            p_positive.append(p[i])
-        else:
-            zeta2.append(q[i] / p[i])
-            p_negative.append(p[i])
-
-    zeta1 = max(zeta1)
-    zeta2 = min(zeta2)
-
-    if zeta1 > zeta2:
-        return None
-
-    if zeta1 > 0:
-        x = p_positive[0] * zeta1
-        y = p_positive[1] * zeta1
-        endpoint =  endpoint + Coordinates(x, y)
-    else:
-        x = p_negative[0] * zeta2
-        y = p_negative[1] * zeta2
-        endpoint =  endpoint + Coordinates(x, y)
-
-    return endpoint
-
-
 def clip_point_Cohen_Sutherland(
     endpoint: Coordinates, region_code: str, angular_coeficient: int
 ) -> Coordinates:
@@ -281,26 +242,46 @@ class Line:
         p.append(-(self.endpoint2.y - self.endpoint1.y))
         p.append(self.endpoint2.y - self.endpoint1.y)
 
-        if (
-            self.endpoint1.x < WINDOW_NDC_MIN_X
-            or self.endpoint1.x > WINDOW_NDC_MAX_X
-            or self.endpoint1.y < WINDOW_NDC_MIN_Y
-            or self.endpoint1.y > WINDOW_NDC_MAX_Y
-        ):
-            endpoint1 = clip_point_Liang_Barsky(self.endpoint1, p)
+        q = list()
+        q.append(self.endpoint1.x - WINDOW_NDC_MIN_X)
+        q.append(WINDOW_NDC_MAX_X - self.endpoint1.x)
+        q.append(self.endpoint1.y - WINDOW_NDC_MIN_Y)
+        q.append(WINDOW_NDC_MAX_Y - self.endpoint1.y)
 
-            if not endpoint1:
-                return None
+        zeta1 = [0]
+        zeta2 = [1]
+
+        p_positive = list()
+        p_negative = list()
+
+        for i in range(4):
+            if p[i] < 0:
+                zeta1.append(q[i] / p[i])
+                p_negative.append(p[i])
+            elif p[i] > 0:
+                zeta2.append(q[i] / p[i])
+                p_positive.append(p[i])
+            else:
+                if q[i] < 0:
+                    return None
+
+        zeta1 = max(zeta1)
+        zeta2 = min(zeta2)
+
+        if zeta1 > zeta2:
+            return None
+
+        if zeta1 > 0:
+            x = p[1] * zeta1
+            y = p[3] * zeta1
+            endpoint1 = self.endpoint1 + Coordinates(x, y)
         else:
             endpoint1 = deepcopy(self.endpoint1)
 
-        if (
-            self.endpoint2.x < WINDOW_NDC_MIN_X
-            or self.endpoint2.x > WINDOW_NDC_MAX_X
-            or self.endpoint2.y < WINDOW_NDC_MIN_Y
-            or self.endpoint2.y > WINDOW_NDC_MAX_Y
-        ):
-            endpoint2 = clip_point_Liang_Barsky(self.endpoint2, [-x for x in p])
+        if zeta2 < 1:
+            x = p[1] * zeta2
+            y = p[3] * zeta2
+            endpoint2 = self.endpoint1 + Coordinates(x, y)
         else:
             endpoint2 = deepcopy(self.endpoint2)
 

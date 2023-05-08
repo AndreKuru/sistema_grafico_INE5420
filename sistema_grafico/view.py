@@ -652,5 +652,5 @@ class Graphic_Viewer:
         self.draw_viewport_border()
         # self.controller.create_point(0, 0, Color.BLACK)
         self.controller.create_line(0, 0, 1, 1, Color.MAGENTA)
-        # self.controller.create_line(0, 1, 1, 0, Color.MAGENTA)
+        self.controller.create_line(0, 1, 1, 0, Color.MAGENTA)
         self._main_window.mainloop()
