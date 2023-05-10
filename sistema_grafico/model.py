@@ -42,6 +42,9 @@ class Coordinates:
         y = self.y * (other)
         return Coordinates(x, y)
 
+    def __eq__(self, __value: object) -> bool:
+        return self.x == __value.x and self.y == __value.y
+
 
 @dataclass
 class Area2d:
@@ -106,10 +109,10 @@ class Point:
 
     def clip_NDC(self, default: bool = True) -> Self | None:
         if (
-            self.coordinates.x > WINDOW_NDC_MIN_X
-            and self.coordinates.x < WINDOW_NDC_MAX_X
-            and self.coordinates.y > WINDOW_NDC_MIN_Y
-            and self.coordinates.y < WINDOW_NDC_MAX_Y
+            self.coordinates.x >= WINDOW_NDC_MIN_X
+            and self.coordinates.x <= WINDOW_NDC_MAX_X
+            and self.coordinates.y >= WINDOW_NDC_MIN_Y
+            and self.coordinates.y <= WINDOW_NDC_MAX_Y
         ):
             return deepcopy(self)
 
@@ -232,7 +235,7 @@ class Line:
             )
         else:
             endpoint2 = deepcopy(self.endpoint2)
-        
+
         if not endpoint2:
             return None
 
@@ -290,7 +293,7 @@ class Line:
 
         return Line(endpoint1, endpoint2, self.color)
 
-    def clip_NDC(self, default: bool = False):
+    def clip_NDC(self, default: bool = True):
         if default:
             return self.clip_line_Cohen_Sutherland()
 
@@ -301,6 +304,7 @@ class Line:
 class Wireframe:
     vertexes: list[Coordinates]
     color: Color = Color.BLACK
+    filled: bool = False
 
     def draw(self, drawer: Drawer):
         if len(self.vertexes) > 2:
@@ -324,3 +328,87 @@ class Wireframe:
         center_y = center_y / len(self.vertexes)
         center = Coordinates(center_x, center_y)
         return center
+
+    def check_clockwise_and_valid_vertexes(
+        self, default: bool
+    ) -> tuple[bool, list[tuple[Coordinates, bool, bool]]]:
+        clockwise_sum = 0
+        if (
+            self.vertexes[0].x >= WINDOW_NDC_MIN_X
+            and self.vertexes[0].x <= WINDOW_NDC_MAX_X
+            and self.vertexes[0].y >= WINDOW_NDC_MIN_Y
+            and self.vertexes[0].y <= WINDOW_NDC_MAX_Y
+        ):
+            if (
+                self.vertexes[0].x == WINDOW_NDC_MIN_X
+                or self.vertexes[0].x == WINDOW_NDC_MAX_X
+                or self.vertexes[0].y == WINDOW_NDC_MIN_Y
+                or self.vertexes[0].y == WINDOW_NDC_MAX_Y
+            ):
+                new_vertexes = self.vertexes[0], False, False
+            else:
+                new_vertexes = self.vertexes[0], False, False
+        else:
+            new_vertexes = list()
+
+        for vertex1, vertex2 in zip(
+            self.vertexes, self.vertexes[1:] + [self.vertexes[0]]
+        ):
+            clockwise_sum += (vertex2.x - vertex1.x) * (vertex2.y - vertex1.y)
+            new_line = Line(vertex1, vertex2, self.color).clip_NDC(default)
+
+            if vertex1 != new_line.endpoint1:
+                new_vertexes.append(vertex1, True, False)
+
+            if vertex2 != new_line.endpoint2:
+                new_vertexes.append(vertex2, False, True)
+            else:
+                new_vertexes.append(vertex2, False, False)
+
+        if clockwise_sum < 0:
+            return False, new_vertexes  # , border_vertexes, inward_vertexes
+
+        return True, new_vertexes  # , border_vertexes, outward_vertexes
+
+        # TODO: border_vertexes: list[Coordinates, int]
+        # TODO: outward_vertexes: outward_vertexes | inward_vertexes
+
+    def clip_NDC(self, default: bool = True):
+        clockwise, new_vertexes = self.check_clockwise_and_valid_vertexes()
+        if clockwise:
+            step = 1
+        else:
+            step = -1
+
+        new_wireframes = list()
+        new_wireframe = list()
+
+        touched_vertexes = set()
+        i = 0
+        while len(touched_vertexes) < len(new_vertexes):
+            if i in touched_vertexes:
+                i = (i + step) % len(new_vertexes)
+                if len(new_wireframe) > 0:
+                    new_wireframes.append(new_wireframe)
+                    new_wireframe = list()
+            else:
+                touched_vertexes.add(i)
+
+                vertex, inward, outward = new_vertexes[i]  # TODO
+
+                new_wireframe.append(vertex)
+                if outward:
+                    corner_vertexes, i = follow_border()  # TODO
+
+                    new_wireframe = new_wireframe + corner_vertexes
+                    if i in touched_vertexes:
+                        new_wireframes.append(new_wireframe)
+                        new_wireframe = list()
+                    else:
+                        touched_vertexes.add(i)
+                        new_wireframe.append(vertex)
+
+                i = (i + step) % len(new_vertexes)
+
+        # TODO: Percorrer todos os vértices novamente para interligar com a borda
+        # TODO: Retorna uma lista de polygons

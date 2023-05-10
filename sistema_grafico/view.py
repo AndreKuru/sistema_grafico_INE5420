@@ -618,10 +618,8 @@ class Graphic_Viewer:
         ).pack(side="left")
 
         clipping_control_frame = Frame(
-            window_function,
-            highlightbackground="grey",
-                highlightthickness=1
-                                    )
+            window_function, highlightbackground="grey", highlightthickness=1
+        )
 
         clipping_control_frame.pack()
 
@@ -630,22 +628,20 @@ class Graphic_Viewer:
         self.line_clip = IntVar(None, DEFAULT)
 
         Radiobutton(
-            clipping_control_frame, 
+            clipping_control_frame,
             text="Cohen Sutherland",
             variable=self.line_clip,
             value=DEFAULT,
-            command=lambda: self.controller.set_clip_default(True)
-            ).pack()
-
+            command=lambda: self.controller.set_clip_default(True),
+        ).pack()
 
         Radiobutton(
-            clipping_control_frame, 
+            clipping_control_frame,
             text="Liang Barsky",
             variable=self.line_clip,
             value=NOT_DEFAULT,
-            command=lambda: self.controller.set_clip_default(False)
-            ).pack()
-
+            command=lambda: self.controller.set_clip_default(False),
+        ).pack()
 
     def draw_point(self, drawable_coordinates: Coordinates, color: Color):
         coordinates = self.controller.transform_window_to_viewport(drawable_coordinates)
