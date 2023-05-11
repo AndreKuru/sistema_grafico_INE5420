@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Protocol, Self
+from types import SimpleNamespace
 from copy import deepcopy
 
 from numpy import double, dot
@@ -16,10 +17,11 @@ class Color(Enum):
     MAGENTA = "Magenta"
 
 
-WINDOW_NDC_MIN_X = -1
-WINDOW_NDC_MIN_Y = -1
-WINDOW_NDC_MAX_X = 1
-WINDOW_NDC_MAX_Y = 1
+const = SimpleNamespace()
+const.WINDOW_NDC_MIN_X = -1
+const.WINDOW_NDC_MIN_Y = -1
+const.WINDOW_NDC_MAX_X = 1
+const.WINDOW_NDC_MAX_Y = 1
 
 
 @dataclass
@@ -109,10 +111,10 @@ class Point:
 
     def clip_NDC(self, default: bool = True) -> Self | None:
         if (
-            self.coordinates.x >= WINDOW_NDC_MIN_X
-            and self.coordinates.x <= WINDOW_NDC_MAX_X
-            and self.coordinates.y >= WINDOW_NDC_MIN_Y
-            and self.coordinates.y <= WINDOW_NDC_MAX_Y
+            self.coordinates.x >= const.WINDOW_NDC_MIN_X
+            and self.coordinates.x <= const.WINDOW_NDC_MAX_X
+            and self.coordinates.y >= const.WINDOW_NDC_MIN_Y
+            and self.coordinates.y <= const.WINDOW_NDC_MAX_Y
         ):
             return deepcopy(self)
 
@@ -126,34 +128,39 @@ def clip_point_Cohen_Sutherland(
 
     if region_code[0] == "1":  # Over the top
         new_endpoint = Coordinates(
-            endpoint.x + (1 / angular_coeficient) * (WINDOW_NDC_MAX_Y - endpoint.y),
-            WINDOW_NDC_MAX_Y,
+            endpoint.x
+            + (1 / angular_coeficient) * (const.WINDOW_NDC_MAX_Y - endpoint.y),
+            const.WINDOW_NDC_MAX_Y,
         )
     elif region_code[1] == "1":  # Over the bottom
         new_endpoint = Coordinates(
-            endpoint.x + (1 / angular_coeficient) * (WINDOW_NDC_MIN_Y - endpoint.y),
-            WINDOW_NDC_MIN_Y,
+            endpoint.x
+            + (1 / angular_coeficient) * (const.WINDOW_NDC_MIN_Y - endpoint.y),
+            const.WINDOW_NDC_MIN_Y,
         )
 
     if (
         new_endpoint
-        and new_endpoint.x >= WINDOW_NDC_MIN_X
-        and new_endpoint.x <= WINDOW_NDC_MAX_X
+        and new_endpoint.x >= const.WINDOW_NDC_MIN_X
+        and new_endpoint.x <= const.WINDOW_NDC_MAX_X
     ):
         return new_endpoint
 
     if region_code[2] == "1":  # Over the right
         new_endpoint = Coordinates(
-            WINDOW_NDC_MAX_X,
-            angular_coeficient * (WINDOW_NDC_MAX_X - endpoint.x) + endpoint.y,
+            const.WINDOW_NDC_MAX_X,
+            angular_coeficient * (const.WINDOW_NDC_MAX_X - endpoint.x) + endpoint.y,
         )
     elif region_code[3] == "1":  # Over the left
         new_endpoint = Coordinates(
-            WINDOW_NDC_MIN_X,
-            angular_coeficient * (WINDOW_NDC_MIN_X - endpoint.x) + endpoint.y,
+            const.WINDOW_NDC_MIN_X,
+            angular_coeficient * (const.WINDOW_NDC_MIN_X - endpoint.x) + endpoint.y,
         )
 
-    if new_endpoint.y >= WINDOW_NDC_MIN_Y and new_endpoint.y <= WINDOW_NDC_MAX_Y:
+    if (
+        new_endpoint.y >= const.WINDOW_NDC_MIN_Y
+        and new_endpoint.y <= const.WINDOW_NDC_MAX_Y
+    ):
         return new_endpoint
 
     return None
@@ -180,25 +187,25 @@ class Line:
 
     def get_region_code(self, endpoint: Coordinates) -> str:  # binary number
         # Over the top
-        if endpoint.y > WINDOW_NDC_MAX_Y:
+        if endpoint.y > const.WINDOW_NDC_MAX_Y:
             region_code = "1"
         else:
             region_code = "0"
 
         # Over the bottom
-        if endpoint.y < WINDOW_NDC_MIN_Y:
+        if endpoint.y < const.WINDOW_NDC_MIN_Y:
             region_code = region_code + "1"
         else:
             region_code = region_code + "0"
 
         # Over the right
-        if endpoint.x > WINDOW_NDC_MAX_X:
+        if endpoint.x > const.WINDOW_NDC_MAX_X:
             region_code = region_code + "1"
         else:
             region_code = region_code + "0"
 
         # Over the left
-        if endpoint.x < WINDOW_NDC_MIN_X:
+        if endpoint.x < const.WINDOW_NDC_MIN_X:
             region_code = region_code + "1"
         else:
             region_code = region_code + "0"
@@ -249,10 +256,10 @@ class Line:
         p.append(self.endpoint2.y - self.endpoint1.y)
 
         q = list()
-        q.append(self.endpoint1.x - WINDOW_NDC_MIN_X)
-        q.append(WINDOW_NDC_MAX_X - self.endpoint1.x)
-        q.append(self.endpoint1.y - WINDOW_NDC_MIN_Y)
-        q.append(WINDOW_NDC_MAX_Y - self.endpoint1.y)
+        q.append(self.endpoint1.x - const.WINDOW_NDC_MIN_X)
+        q.append(const.WINDOW_NDC_MAX_X - self.endpoint1.x)
+        q.append(self.endpoint1.y - const.WINDOW_NDC_MIN_Y)
+        q.append(const.WINDOW_NDC_MAX_Y - self.endpoint1.y)
 
         zeta1 = [0]
         zeta2 = [1]
@@ -334,22 +341,27 @@ class Wireframe:
     ) -> tuple[bool, list[tuple[Coordinates, bool, bool]]]:
         clockwise_sum = 0
         if (
-            self.vertexes[0].x >= WINDOW_NDC_MIN_X
-            and self.vertexes[0].x <= WINDOW_NDC_MAX_X
-            and self.vertexes[0].y >= WINDOW_NDC_MIN_Y
-            and self.vertexes[0].y <= WINDOW_NDC_MAX_Y
+            self.vertexes[0].x >= const.WINDOW_NDC_MIN_X
+            and self.vertexes[0].x <= const.WINDOW_NDC_MAX_X
+            and self.vertexes[0].y >= const.WINDOW_NDC_MIN_Y
+            and self.vertexes[0].y <= const.WINDOW_NDC_MAX_Y
         ):
+            new_vertexes = [self.vertexes[0]]
             if (
-                self.vertexes[0].x == WINDOW_NDC_MIN_X
-                or self.vertexes[0].x == WINDOW_NDC_MAX_X
-                or self.vertexes[0].y == WINDOW_NDC_MIN_Y
-                or self.vertexes[0].y == WINDOW_NDC_MAX_Y
+                self.vertexes[0].x == const.WINDOW_NDC_MIN_X
+                or self.vertexes[0].x == const.WINDOW_NDC_MAX_X
+                or self.vertexes[0].y == const.WINDOW_NDC_MIN_Y
+                or self.vertexes[0].y == const.WINDOW_NDC_MAX_Y
             ):
-                new_vertexes = self.vertexes[0], False, False
+                border_vertexes = [(self.vertexes[0], 0)]
             else:
-                new_vertexes = self.vertexes[0], False, False
+                border_vertexes = list()
         else:
             new_vertexes = list()
+            border_vertexes = list()
+
+        inward_vertexes = set()
+        outward_vertexes = set()
 
         for vertex1, vertex2 in zip(
             self.vertexes, self.vertexes[1:] + [self.vertexes[0]]
@@ -358,23 +370,86 @@ class Wireframe:
             new_line = Line(vertex1, vertex2, self.color).clip_NDC(default)
 
             if vertex1 != new_line.endpoint1:
-                new_vertexes.append(vertex1, True, False)
+                new_vertexes.append(new_line.endpoint1)
+                border_vertexes.append((new_line.endpoint1, len(new_vertexes) - 1))
+                inward_vertexes(len(new_vertexes) - 1)
 
+            new_vertexes.append(new_line.endpoint2)
             if vertex2 != new_line.endpoint2:
-                new_vertexes.append(vertex2, False, True)
+                border_vertexes.append((new_line.endpoint2, len(new_vertexes) - 1))
+                outward_vertexes(len(new_vertexes) - 1)
             else:
-                new_vertexes.append(vertex2, False, False)
+                if (
+                    self.vertexes[0].x == const.WINDOW_NDC_MIN_X
+                    or self.vertexes[0].x == const.WINDOW_NDC_MAX_X
+                    or self.vertexes[0].y == const.WINDOW_NDC_MIN_Y
+                    or self.vertexes[0].y == const.WINDOW_NDC_MAX_Y
+                ):
+                    border_vertexes.append((new_line.endpoint2, len(new_vertexes) - 1))
 
         if clockwise_sum < 0:
-            return False, new_vertexes  # , border_vertexes, inward_vertexes
+            return False, new_vertexes, border_vertexes, inward_vertexes
 
-        return True, new_vertexes  # , border_vertexes, outward_vertexes
+        return True, new_vertexes, border_vertexes, outward_vertexes
 
         # TODO: border_vertexes: list[Coordinates, int]
         # TODO: outward_vertexes: outward_vertexes | inward_vertexes
 
+    def follow_border(
+        self, border_vertexes: list[Coordinates, int], outward_vertex: Coordinates
+    ) -> tuple[list[Coordinates], int]:
+        border_vertex = None
+        corner_borders = list()
+        while not border_vertex:
+            match outward_vertex:
+                case Coordinates(const.WINDOW_NDC_MIN_X, const.WINDOW_NDC_MAX_Y):
+                    for vertex, i in border_vertexes:
+                        if (
+                            vertex.y == const.WINDOW_NDC_MAX_Y
+                            and vertex.x >= outward_vertex.x
+                            and (not border_vertexes or vertex.x < border_vertex.x)
+                        ):
+                            border_vertex = vertex
+                            border_index = i
+                    if not border_index:
+                        corner_vertex = Coordinates(
+                            const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MAX_Y
+                        )
+                        corner_borders.append(corner_vertex)
+                        outward_vertex = corner_vertex
+
+                case Coordinates(const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MAX_Y):
+                    ...
+
+                case Coordinates(const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MIN_Y):
+                    ...
+
+                case Coordinates(const.WINDOW_NDC_MIN_X, const.WINDOW_NDC_MIN_Y):
+                    ...
+
+                case Coordinates():
+                    match outward_vertex.x:
+                        case const.WINDOW_NDC_MIN_X:
+                            ...
+
+                        case const.WINDOW_NDC_MAX_X:
+                            ...
+
+                        case _:
+                            match outward_vertex.y:
+                                case const.WINDOW_NDC_MIN_Y:
+                                    ...
+
+                                case const.WINDOW_NDC_MAX_Y:
+                                    ...
+
     def clip_NDC(self, default: bool = True):
-        clockwise, new_vertexes = self.check_clockwise_and_valid_vertexes()
+        (
+            clockwise,
+            new_vertexes,
+            border_vertexes,
+            outward_vertexes,
+        ) = self.check_clockwise_and_valid_vertexes()
         if clockwise:
             step = 1
         else:
@@ -394,11 +469,13 @@ class Wireframe:
             else:
                 touched_vertexes.add(i)
 
-                vertex, inward, outward = new_vertexes[i]  # TODO
+                vertex = new_vertexes[i]
 
                 new_wireframe.append(vertex)
-                if outward:
-                    corner_vertexes, i = follow_border()  # TODO
+                if i in outward_vertexes:
+                    corner_vertexes, i = self.follow_border(
+                        border_vertexes, vertex
+                    )  # TODO
 
                     new_wireframe = new_wireframe + corner_vertexes
                     if i in touched_vertexes:
