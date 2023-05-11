@@ -419,13 +419,52 @@ class Wireframe:
                         outward_vertex = corner_vertex
 
                 case Coordinates(const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MAX_Y):
-                    ...
+                    for vertex, i in border_vertexes:
+                        if (
+                            vertex.x == const.WINDOW_NDC_MAX_X
+                            and vertex.y <= outward_vertex.y
+                            and (not border_vertexes or vertex.y > border_vertex.y)
+                        ):
+                            border_vertex = vertex
+                            border_index = i
+                    if not border_index:
+                        corner_vertex = Coordinates(
+                            const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MIN_Y
+                        )
+                        corner_borders.append(corner_vertex)
+                        outward_vertex = corner_vertex
 
                 case Coordinates(const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MIN_Y):
-                    ...
+                    for vertex, i in border_vertexes:
+                        if (
+                            vertex.y == const.WINDOW_NDC_MIN_Y
+                            and vertex.x <= outward_vertex.x
+                            and (not border_vertexes or vertex.x > border_vertex.x)
+                        ):
+                            border_vertex = vertex
+                            border_index = i
+                    if not border_index:
+                        corner_vertex = Coordinates(
+                            const.WINDOW_NDC_MIN_X, const.WINDOW_NDC_MIN_Y
+                        )
+                        corner_borders.append(corner_vertex)
+                        outward_vertex = corner_vertex
 
                 case Coordinates(const.WINDOW_NDC_MIN_X, const.WINDOW_NDC_MIN_Y):
-                    ...
+                    for vertex, i in border_vertexes:
+                        if (
+                            vertex.y == const.WINDOW_NDC_MIN_X
+                            and vertex.y >= outward_vertex.y
+                            and (not border_vertexes or vertex.y < border_vertex.y)
+                        ):
+                            border_vertex = vertex
+                            border_index = i
+                    if not border_index:
+                        corner_vertex = Coordinates(
+                            const.WINDOW_NDC_MIN_X, const.WINDOW_NDC_MAX_Y
+                        )
+                        corner_borders.append(corner_vertex)
+                        outward_vertex = corner_vertex
 
                 case Coordinates():
                     match outward_vertex.x:
