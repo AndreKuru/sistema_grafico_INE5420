@@ -109,14 +109,14 @@ class Point:
         center = self.coordinates
         return center
 
-    def clip_NDC(self, default: bool = True) -> Self | None:
+    def clip_NDC(self, default: bool = True) -> list[Self] | None:
         if (
             self.coordinates.x >= const.WINDOW_NDC_MIN_X
             and self.coordinates.x <= const.WINDOW_NDC_MAX_X
             and self.coordinates.y >= const.WINDOW_NDC_MIN_Y
             and self.coordinates.y <= const.WINDOW_NDC_MAX_Y
         ):
-            return deepcopy(self)
+            return [deepcopy(self)]
 
         return None
 
@@ -300,11 +300,16 @@ class Line:
 
         return Line(endpoint1, endpoint2, self.color)
 
-    def clip_NDC(self, default: bool = True):
+    def clip_NDC(self, default: bool = True) -> list[Self] | None:
         if default:
-            return self.clip_line_Cohen_Sutherland()
+            line_clipped = self.clip_line_Cohen_Sutherland()
+        else:
+            line_clipped = self.clip_line_Liang_Barsky()
 
-        return self.clip_line_Liang_Barsky()
+        if line_clipped:
+            return [line_clipped]
+
+        return None
 
 
 @dataclass
@@ -368,24 +373,28 @@ class Wireframe:
         ):
             clockwise_sum += (vertex2.x - vertex1.x) * (vertex2.y - vertex1.y)
             new_line = Line(vertex1, vertex2, self.color).clip_NDC(default)
+            if new_line:
+                new_line = new_line[0]
 
-            if vertex1 != new_line.endpoint1:
-                new_vertexes.append(new_line.endpoint1)
-                border_vertexes.append((new_line.endpoint1, len(new_vertexes) - 1))
-                inward_vertexes(len(new_vertexes) - 1)
+                if vertex1 != new_line.endpoint1:
+                    new_vertexes.append(new_line.endpoint1)
+                    border_vertexes.append((new_line.endpoint1, len(new_vertexes) - 1))
+                    inward_vertexes.add(len(new_vertexes) - 1)
 
-            new_vertexes.append(new_line.endpoint2)
-            if vertex2 != new_line.endpoint2:
-                border_vertexes.append((new_line.endpoint2, len(new_vertexes) - 1))
-                outward_vertexes(len(new_vertexes) - 1)
-            else:
-                if (
-                    self.vertexes[0].x == const.WINDOW_NDC_MIN_X
-                    or self.vertexes[0].x == const.WINDOW_NDC_MAX_X
-                    or self.vertexes[0].y == const.WINDOW_NDC_MIN_Y
-                    or self.vertexes[0].y == const.WINDOW_NDC_MAX_Y
-                ):
+                new_vertexes.append(new_line.endpoint2)
+                if vertex2 != new_line.endpoint2:
                     border_vertexes.append((new_line.endpoint2, len(new_vertexes) - 1))
+                    outward_vertexes.add(len(new_vertexes) - 1)
+                else:
+                    if (
+                        self.vertexes[0].x == const.WINDOW_NDC_MIN_X
+                        or self.vertexes[0].x == const.WINDOW_NDC_MAX_X
+                        or self.vertexes[0].y == const.WINDOW_NDC_MIN_Y
+                        or self.vertexes[0].y == const.WINDOW_NDC_MAX_Y
+                    ):
+                        border_vertexes.append(
+                            (new_line.endpoint2, len(new_vertexes) - 1)
+                        )
 
         if clockwise_sum < 0:
             return False, new_vertexes, border_vertexes, inward_vertexes
@@ -396,18 +405,23 @@ class Wireframe:
         # TODO: outward_vertexes: outward_vertexes | inward_vertexes
 
     def follow_border(
-        self, border_vertexes: list[Coordinates, int], outward_vertex: Coordinates
+        self,
+        border_vertexes: list[Coordinates, int],
+        outward_vertex: Coordinates,
+        outward_index: int,
     ) -> tuple[list[Coordinates], int]:
         border_vertex = None
         corner_borders = list()
         while not border_vertex:
             match outward_vertex:
+                # Top border
                 case Coordinates(const.WINDOW_NDC_MIN_X, const.WINDOW_NDC_MAX_Y):
                     for vertex, i in border_vertexes:
                         if (
-                            vertex.y == const.WINDOW_NDC_MAX_Y
+                            i != outward_index
+                            and vertex.y == const.WINDOW_NDC_MAX_Y
                             and vertex.x >= outward_vertex.x
-                            and (not border_vertexes or vertex.x < border_vertex.x)
+                            and (not border_vertex or vertex.x < border_vertex.x)
                         ):
                             border_vertex = vertex
                             border_index = i
@@ -418,12 +432,14 @@ class Wireframe:
                         corner_borders.append(corner_vertex)
                         outward_vertex = corner_vertex
 
+                # Right border
                 case Coordinates(const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MAX_Y):
                     for vertex, i in border_vertexes:
                         if (
-                            vertex.x == const.WINDOW_NDC_MAX_X
+                            i != outward_index
+                            and vertex.x == const.WINDOW_NDC_MAX_X
                             and vertex.y <= outward_vertex.y
-                            and (not border_vertexes or vertex.y > border_vertex.y)
+                            and (not border_vertex or vertex.y > border_vertex.y)
                         ):
                             border_vertex = vertex
                             border_index = i
@@ -434,12 +450,14 @@ class Wireframe:
                         corner_borders.append(corner_vertex)
                         outward_vertex = corner_vertex
 
+                # Bottom border
                 case Coordinates(const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MIN_Y):
                     for vertex, i in border_vertexes:
                         if (
-                            vertex.y == const.WINDOW_NDC_MIN_Y
+                            i != outward_index
+                            and vertex.y == const.WINDOW_NDC_MIN_Y
                             and vertex.x <= outward_vertex.x
-                            and (not border_vertexes or vertex.x > border_vertex.x)
+                            and (not border_vertex or vertex.x > border_vertex.x)
                         ):
                             border_vertex = vertex
                             border_index = i
@@ -450,12 +468,14 @@ class Wireframe:
                         corner_borders.append(corner_vertex)
                         outward_vertex = corner_vertex
 
+                # Left border
                 case Coordinates(const.WINDOW_NDC_MIN_X, const.WINDOW_NDC_MIN_Y):
                     for vertex, i in border_vertexes:
                         if (
-                            vertex.y == const.WINDOW_NDC_MIN_X
+                            i != outward_index
+                            and vertex.x == const.WINDOW_NDC_MIN_X
                             and vertex.y >= outward_vertex.y
-                            and (not border_vertexes or vertex.y < border_vertex.y)
+                            and (not border_vertex or vertex.y < border_vertex.y)
                         ):
                             border_vertex = vertex
                             border_index = i
@@ -468,27 +488,108 @@ class Wireframe:
 
                 case Coordinates():
                     match outward_vertex.x:
+                        # Left border
                         case const.WINDOW_NDC_MIN_X:
-                            ...
+                            for vertex, i in border_vertexes:
+                                if (
+                                    i != outward_index
+                                    and vertex.x == const.WINDOW_NDC_MIN_X
+                                    and vertex.y >= outward_vertex.y
+                                    and (
+                                        not border_vertex or vertex.y < border_vertex.y
+                                    )
+                                ):
+                                    border_vertex = vertex
+                                    border_index = i
+                            if not border_index:
+                                corner_vertex = Coordinates(
+                                    const.WINDOW_NDC_MIN_X, const.WINDOW_NDC_MAX_Y
+                                )
+                                corner_borders.append(corner_vertex)
+                                outward_vertex = corner_vertex
 
+                        # Right border
                         case const.WINDOW_NDC_MAX_X:
-                            ...
+                            for vertex, i in border_vertexes:
+                                if (
+                                    i != outward_index
+                                    and vertex.x == const.WINDOW_NDC_MAX_X
+                                    and vertex.y <= outward_vertex.y
+                                    and (
+                                        not border_vertex or vertex.y > border_vertex.y
+                                    )
+                                ):
+                                    border_vertex = vertex
+                                    border_index = i
+                            if not border_index:
+                                corner_vertex = Coordinates(
+                                    const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MIN_Y
+                                )
+                                corner_borders.append(corner_vertex)
+                                outward_vertex = corner_vertex
 
                         case _:
                             match outward_vertex.y:
+                                # Bottom border
                                 case const.WINDOW_NDC_MIN_Y:
-                                    ...
+                                    for vertex, i in border_vertexes:
+                                        if (
+                                            i != outward_index
+                                            and vertex.y == const.WINDOW_NDC_MIN_Y
+                                            and vertex.x <= outward_vertex.x
+                                            and (
+                                                not border_vertex
+                                                or vertex.x > border_vertex.x
+                                            )
+                                        ):
+                                            border_vertex = vertex
+                                            border_index = i
+                                    if not border_index:
+                                        corner_vertex = Coordinates(
+                                            const.WINDOW_NDC_MIN_X,
+                                            const.WINDOW_NDC_MIN_Y,
+                                        )
+                                        corner_borders.append(corner_vertex)
+                                        outward_vertex = corner_vertex
 
+                                # Top border
                                 case const.WINDOW_NDC_MAX_Y:
-                                    ...
+                                    for vertex, i in border_vertexes:
+                                        if (
+                                            i != outward_index
+                                            and vertex.y == const.WINDOW_NDC_MAX_Y
+                                            and vertex.x >= outward_vertex.x
+                                            and (
+                                                not border_vertex
+                                                or vertex.x < border_vertex.x
+                                            )
+                                        ):
+                                            border_vertex = vertex
+                                            border_index = i
+                                    if not border_index:
+                                        corner_vertex = Coordinates(
+                                            const.WINDOW_NDC_MAX_X,
+                                            const.WINDOW_NDC_MAX_Y,
+                                        )
+                                        corner_borders.append(corner_vertex)
+                                        outward_vertex = corner_vertex
 
-    def clip_NDC(self, default: bool = True):
+        return corner_borders, border_index
+
+    def add_wireframe(
+        self, wireframes_list: list[Self], coordinates: list[Coordinates]
+    ) -> None:
+        wireframe = Wireframe(deepcopy(coordinates), self.color, self.filled)
+        wireframes_list.append(wireframe)
+        coordinates.clear()
+
+    def clip_NDC(self, default: bool = True) -> list[list[Self]] | None:
         (
             clockwise,
             new_vertexes,
             border_vertexes,
             outward_vertexes,
-        ) = self.check_clockwise_and_valid_vertexes()
+        ) = self.check_clockwise_and_valid_vertexes(default)
         if clockwise:
             step = 1
         else:
@@ -503,8 +604,7 @@ class Wireframe:
             if i in touched_vertexes:
                 i = (i + step) % len(new_vertexes)
                 if len(new_wireframe) > 0:
-                    new_wireframes.append(new_wireframe)
-                    new_wireframe = list()
+                    self.add_wireframe(new_wireframes, new_wireframe)
             else:
                 touched_vertexes.add(i)
 
@@ -512,19 +612,21 @@ class Wireframe:
 
                 new_wireframe.append(vertex)
                 if i in outward_vertexes:
-                    corner_vertexes, i = self.follow_border(
-                        border_vertexes, vertex
-                    )  # TODO
+                    corner_vertexes, i = self.follow_border(border_vertexes, vertex, i)
 
                     new_wireframe = new_wireframe + corner_vertexes
                     if i in touched_vertexes:
-                        new_wireframes.append(new_wireframe)
-                        new_wireframe = list()
+                        self.add_wireframe(new_wireframes, new_wireframe)
                     else:
                         touched_vertexes.add(i)
                         new_wireframe.append(vertex)
 
                 i = (i + step) % len(new_vertexes)
 
-        # TODO: Percorrer todos os vértices novamente para interligar com a borda
-        # TODO: Retorna uma lista de polygons
+        if len(new_wireframe) > 0:
+            self.add_wireframe(new_wireframes, new_wireframe)
+
+        if len(new_wireframes) == 0:
+            return None
+
+        return new_wireframes

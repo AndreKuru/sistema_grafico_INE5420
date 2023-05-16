@@ -145,7 +145,9 @@ class Controller:
         self._display_file_NDC[name] = wireframe_NDC
         self.redraw()
 
-    def create_wireframe(self, list_x: list(int), list_y: list(int), color: Color):
+    def create_wireframe(
+        self, list_x: list[int | float], list_y: list[int | float], color: Color
+    ):
         coordinates = list()
         for i in range(len(list_x)):
             coordinate = Coordinates(list_x[i], list_y[i])
@@ -156,9 +158,11 @@ class Controller:
     def redraw(self):
         self._drawer.clear()
         for drawable in self._display_file_NDC.values():
-            drawable_clipped = drawable.clip_NDC(self._clip_default)
-            if drawable_clipped:
-                drawable_clipped.draw(self._drawer)
+            drawables_clipped = drawable.clip_NDC(self._clip_default)
+            if drawables_clipped:
+                for drawable_clipped in drawables_clipped:
+                    drawable_clipped.draw(self._drawer)
+            # drawable.draw(self._drawer)
         self._drawer.draw_viewport_border()
 
     def size_window(self) -> Coordinates:

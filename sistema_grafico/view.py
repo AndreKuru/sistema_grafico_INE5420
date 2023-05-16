@@ -679,6 +679,9 @@ class Graphic_Viewer:
     def run(self):
         self.draw_viewport_border()
         # self.controller.create_point(0, 0, Color.BLACK)
-        self.controller.create_line(0, 0, 1, 1, Color.MAGENTA)
-        self.controller.create_line(0, 1, 1, 0, Color.MAGENTA)
+        # self.controller.create_line(0, 0, 1, 1, Color.MAGENTA)
+        # self.controller.create_line(0, 1, 1, 0, Color.MAGENTA)
+        self.controller.create_wireframe(
+            [-0.75, 0.5, 0.65], [-0.75, 0.5, -0.7], Color.BLUE
+        )  # TODO: bug do clockwise
         self._main_window.mainloop()
