@@ -127,17 +127,18 @@ def clip_point_Cohen_Sutherland(
     new_endpoint = None
 
     if region_code[0] == "1":  # Over the top
-        new_endpoint = Coordinates(
-            endpoint.x
-            + (1 / angular_coeficient) * (const.WINDOW_NDC_MAX_Y - endpoint.y),
-            const.WINDOW_NDC_MAX_Y,
-        )
+        if angular_coeficient == 0:
+            new_x = endpoint.x
+        else:
+            new_x = endpoint.x + (1 / angular_coeficient) * (const.WINDOW_NDC_MAX_Y - endpoint.y)
+        new_endpoint = Coordinates(new_x, const.WINDOW_NDC_MAX_Y)
+
     elif region_code[1] == "1":  # Over the bottom
-        new_endpoint = Coordinates(
-            endpoint.x
-            + (1 / angular_coeficient) * (const.WINDOW_NDC_MIN_Y - endpoint.y),
-            const.WINDOW_NDC_MIN_Y,
-        )
+        if angular_coeficient == 0:
+            new_x = endpoint.x
+        else:
+            new_x = endpoint.x + (1 / angular_coeficient) * (const.WINDOW_NDC_MIN_Y - endpoint.y)
+        new_endpoint = Coordinates(new_x, const.WINDOW_NDC_MIN_Y)
 
     if (
         new_endpoint
@@ -221,10 +222,13 @@ class Line:
 
         if int(region_code1, 2) & int(region_code2, 2) != 0:
             return None
+        
+        delta_x = self.endpoint2.x - self.endpoint1.x
 
-        angular_coeficient = (self.endpoint2.y - self.endpoint1.y) / (
-            self.endpoint2.x - self.endpoint1.x
-        )
+        if delta_x == 0:
+            angular_coeficient = 0
+        else:
+            angular_coeficient = (self.endpoint2.y - self.endpoint1.y) / delta_x
 
         if int(region_code1) != 0:
             endpoint1 = clip_point_Cohen_Sutherland(
@@ -371,20 +375,50 @@ class Wireframe:
         for vertex1, vertex2 in zip(
             self.vertexes, self.vertexes[1:] + [self.vertexes[0]]
         ):
+            #clockwise_sum += (vertex2.x - vertex1.x) * (vertex2.y - vertex1.y)
+            # top       = +
+            # right     = +
+            # bottom    = -
+            # left      = -
+
+            # top and left      = -
+            # top and right     = +
+            # bottom and left   = +
+            # bottom and right  = -
+
             clockwise_sum += (vertex2.x - vertex1.x) * (vertex2.y - vertex1.y)
             new_line = Line(vertex1, vertex2, self.color).clip_NDC(default)
             if new_line:
                 new_line = new_line[0]
 
                 if vertex1 != new_line.endpoint1:
+                    if new_line.endpoint1.x >= 0.998:
+                        new_line.endpoint1.x = 1
+                    elif new_line.endpoint1.x <= -0.998:
+                        new_line.endpoint1.x = -1
+
+                    if new_line.endpoint1.y >= 0.998:
+                        new_line.endpoint1.y = 1
+                    elif new_line.endpoint1.y <= -0.998:
+                        new_line.endpoint1.y = -1
+
                     new_vertexes.append(new_line.endpoint1)
                     border_vertexes.append((new_line.endpoint1, len(new_vertexes) - 1))
                     inward_vertexes.add(len(new_vertexes) - 1)
 
-                new_vertexes.append(new_line.endpoint2)
                 if vertex2 != new_line.endpoint2:
-                    border_vertexes.append((new_line.endpoint2, len(new_vertexes) - 1))
-                    outward_vertexes.add(len(new_vertexes) - 1)
+                    if new_line.endpoint2.x >= 0.998:
+                        new_line.endpoint2.x = 1
+                    elif new_line.endpoint2.x <= -0.998:
+                        new_line.endpoint2.x = -1
+
+                    if new_line.endpoint2.y >= 0.998:
+                        new_line.endpoint2.y = 1
+                    elif new_line.endpoint2.y <= -0.998:
+                        new_line.endpoint2.y = -1
+
+                    border_vertexes.append((new_line.endpoint2, len(new_vertexes)))
+                    outward_vertexes.add(len(new_vertexes))
                 else:
                     if (
                         self.vertexes[0].x == const.WINDOW_NDC_MIN_X
@@ -393,8 +427,9 @@ class Wireframe:
                         or self.vertexes[0].y == const.WINDOW_NDC_MAX_Y
                     ):
                         border_vertexes.append(
-                            (new_line.endpoint2, len(new_vertexes) - 1)
+                            (new_line.endpoint2, len(new_vertexes))
                         )
+                new_vertexes.append(new_line.endpoint2)
 
         if clockwise_sum < 0:
             return False, new_vertexes, border_vertexes, inward_vertexes
@@ -420,12 +455,12 @@ class Wireframe:
                         if (
                             i != outward_index
                             and vertex.y == const.WINDOW_NDC_MAX_Y
-                            and vertex.x >= outward_vertex.x
+                            and vertex.x > outward_vertex.x
                             and (not border_vertex or vertex.x < border_vertex.x)
                         ):
                             border_vertex = vertex
                             border_index = i
-                    if not border_index:
+                    if not border_vertex:
                         corner_vertex = Coordinates(
                             const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MAX_Y
                         )
@@ -438,12 +473,12 @@ class Wireframe:
                         if (
                             i != outward_index
                             and vertex.x == const.WINDOW_NDC_MAX_X
-                            and vertex.y <= outward_vertex.y
+                            and vertex.y < outward_vertex.y
                             and (not border_vertex or vertex.y > border_vertex.y)
                         ):
                             border_vertex = vertex
                             border_index = i
-                    if not border_index:
+                    if not border_vertex:
                         corner_vertex = Coordinates(
                             const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MIN_Y
                         )
@@ -456,12 +491,12 @@ class Wireframe:
                         if (
                             i != outward_index
                             and vertex.y == const.WINDOW_NDC_MIN_Y
-                            and vertex.x <= outward_vertex.x
+                            and vertex.x < outward_vertex.x
                             and (not border_vertex or vertex.x > border_vertex.x)
                         ):
                             border_vertex = vertex
                             border_index = i
-                    if not border_index:
+                    if not border_vertex:
                         corner_vertex = Coordinates(
                             const.WINDOW_NDC_MIN_X, const.WINDOW_NDC_MIN_Y
                         )
@@ -474,12 +509,12 @@ class Wireframe:
                         if (
                             i != outward_index
                             and vertex.x == const.WINDOW_NDC_MIN_X
-                            and vertex.y >= outward_vertex.y
+                            and vertex.y > outward_vertex.y
                             and (not border_vertex or vertex.y < border_vertex.y)
                         ):
                             border_vertex = vertex
                             border_index = i
-                    if not border_index:
+                    if not border_vertex:
                         corner_vertex = Coordinates(
                             const.WINDOW_NDC_MIN_X, const.WINDOW_NDC_MAX_Y
                         )
@@ -494,14 +529,14 @@ class Wireframe:
                                 if (
                                     i != outward_index
                                     and vertex.x == const.WINDOW_NDC_MIN_X
-                                    and vertex.y >= outward_vertex.y
+                                    and vertex.y > outward_vertex.y
                                     and (
                                         not border_vertex or vertex.y < border_vertex.y
                                     )
                                 ):
                                     border_vertex = vertex
                                     border_index = i
-                            if not border_index:
+                            if not border_vertex:
                                 corner_vertex = Coordinates(
                                     const.WINDOW_NDC_MIN_X, const.WINDOW_NDC_MAX_Y
                                 )
@@ -514,14 +549,14 @@ class Wireframe:
                                 if (
                                     i != outward_index
                                     and vertex.x == const.WINDOW_NDC_MAX_X
-                                    and vertex.y <= outward_vertex.y
+                                    and vertex.y < outward_vertex.y
                                     and (
                                         not border_vertex or vertex.y > border_vertex.y
                                     )
                                 ):
                                     border_vertex = vertex
                                     border_index = i
-                            if not border_index:
+                            if not border_vertex:
                                 corner_vertex = Coordinates(
                                     const.WINDOW_NDC_MAX_X, const.WINDOW_NDC_MIN_Y
                                 )
@@ -536,7 +571,7 @@ class Wireframe:
                                         if (
                                             i != outward_index
                                             and vertex.y == const.WINDOW_NDC_MIN_Y
-                                            and vertex.x <= outward_vertex.x
+                                            and vertex.x < outward_vertex.x
                                             and (
                                                 not border_vertex
                                                 or vertex.x > border_vertex.x
@@ -544,7 +579,7 @@ class Wireframe:
                                         ):
                                             border_vertex = vertex
                                             border_index = i
-                                    if not border_index:
+                                    if not border_vertex:
                                         corner_vertex = Coordinates(
                                             const.WINDOW_NDC_MIN_X,
                                             const.WINDOW_NDC_MIN_Y,
@@ -558,7 +593,7 @@ class Wireframe:
                                         if (
                                             i != outward_index
                                             and vertex.y == const.WINDOW_NDC_MAX_Y
-                                            and vertex.x >= outward_vertex.x
+                                            and vertex.x > outward_vertex.x
                                             and (
                                                 not border_vertex
                                                 or vertex.x < border_vertex.x
@@ -566,7 +601,7 @@ class Wireframe:
                                         ):
                                             border_vertex = vertex
                                             border_index = i
-                                    if not border_index:
+                                    if not border_vertex:
                                         corner_vertex = Coordinates(
                                             const.WINDOW_NDC_MAX_X,
                                             const.WINDOW_NDC_MAX_Y,
@@ -579,6 +614,8 @@ class Wireframe:
     def add_wireframe(
         self, wireframes_list: list[Self], coordinates: list[Coordinates]
     ) -> None:
+        # if len(coordinates) < 3:
+        #     raise("Wireframe clipped has insuficient vertexes")
         wireframe = Wireframe(deepcopy(coordinates), self.color, self.filled)
         wireframes_list.append(wireframe)
         coordinates.clear()
@@ -602,6 +639,8 @@ class Wireframe:
         i = 0
         while len(touched_vertexes) < len(new_vertexes):
             if i in touched_vertexes:
+                if new_vertexes[i] != new_wireframe[0]:
+                    new_wireframe.append(new_vertexes[i])
                 i = (i + step) % len(new_vertexes)
                 if len(new_wireframe) > 0:
                     self.add_wireframe(new_wireframes, new_wireframe)
@@ -616,9 +655,12 @@ class Wireframe:
 
                     new_wireframe = new_wireframe + corner_vertexes
                     if i in touched_vertexes:
+                        if new_vertexes[i] != new_wireframe[0]:
+                            new_wireframe.append(new_vertexes[i])
                         self.add_wireframe(new_wireframes, new_wireframe)
                     else:
                         touched_vertexes.add(i)
+                        vertex = new_vertexes[i]
                         new_wireframe.append(vertex)
 
                 i = (i + step) % len(new_vertexes)
