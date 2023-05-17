@@ -324,9 +324,12 @@ class Wireframe:
 
     def draw(self, drawer: Drawer):
         if len(self.vertexes) > 2:
-            for i in range(len(self.vertexes) - 1):
-                drawer.draw_line(self.vertexes[i], self.vertexes[i + 1], self.color)
-            drawer.draw_line(self.vertexes[-1], self.vertexes[0], self.color)
+            if self.filled:
+                drawer.draw_wireframe_filled(self.vertexes, self.color)
+            else:
+                for i in range(len(self.vertexes) - 1):
+                    drawer.draw_line(self.vertexes[i], self.vertexes[i + 1], self.color)
+                drawer.draw_line(self.vertexes[-1], self.vertexes[0], self.color)
 
     def transform(self, matrix: list[list[int | double | float]]):
         new_vertexes = list()

@@ -14,6 +14,7 @@ from tkinter import (
     ttk,
     Radiobutton,
     IntVar,
+    Checkbutton
 )
 from tkinter.filedialog import askopenfile, asksaveasfile
 from pathlib import Path
@@ -224,7 +225,7 @@ class Graphic_Viewer:
         for y in listbox_y.get(0, listbox_x.size()):
             all_y.append(float(y))
 
-        self.controller.create_wireframe(all_x, all_y, color)
+        self.controller.create_wireframe(all_x, all_y, color, bool(self.filled.get()))
 
     # Creation of wireframe
     def create_wireframe_window(self):
@@ -237,6 +238,10 @@ class Graphic_Viewer:
         listbox_x, listbox_y = self.ask_several_coordinates(wireframe_coord_frame)
 
         color = self.create_color(wireframe_coord_frame)
+
+        self.filled = IntVar()
+
+        Checkbutton(wireframe_coord_frame, variable=self.filled, text="Filled").pack()
 
         Button(
             wireframe_coord_frame,
@@ -667,6 +672,16 @@ class Graphic_Viewer:
             self._canvas.create_line(
                 endpoint1.x, endpoint1.y, endpoint2.x, endpoint2.y, fill=color.value
             )
+    
+    def draw_wireframe_filled(self, vertexes: list[Coordinates], color: Color):
+        vertexes_transformed = list()
+        for vertex in vertexes:
+            vertexes_transformed.append(self.controller.transform_window_to_viewport(vertex))
+        x_and_y_alternating = list()
+        for vertex in vertexes_transformed:
+            x_and_y_alternating.append(vertex.x)
+            x_and_y_alternating.append(vertex.y)
+        self._canvas.create_polygon(x_and_y_alternating, fill=color.value)
 
     def draw_viewport_border(self):
         self._canvas.create_rectangle(
@@ -678,12 +693,12 @@ class Graphic_Viewer:
 
     def run(self):
         self.draw_viewport_border()
-        self.controller.create_point(0, 0, Color.BLACK)
-        self.controller.create_line(0, 0, 1, 1, Color.MAGENTA)
-        self.controller.create_line(0, 1, 1, 0, Color.MAGENTA)
-        self.controller.create_wireframe(
+        # self.controller.create_point(0, 0, Color.BLACK)
+        # self.controller.create_line(0, 0, 1, 1, Color.MAGENTA)
+        # self.controller.create_line(0, 1, 1, 0, Color.MAGENTA)
+        # self.controller.create_wireframe(
             # [-0.75, 0.5, 0.65], [-0.75, 0.5, -0.7], Color.BLUE
             # [-0.75, 0.65, 0.5], [-0.75, -0.7, 0.5], Color.BLUE
-            [-0.75, 0.5, 0.5], [-0.75, -0.75, 0.5], Color.BLUE
-        )
+            # [-0.75, 0.5, 0.5], [-0.75, -0.75, 0.5], Color.BLUE
+        # )
         self._main_window.mainloop()

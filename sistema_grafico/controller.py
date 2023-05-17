@@ -133,11 +133,11 @@ class Controller:
         self.create_line_w_coordinates(endpoint1, endpoint2, color)
 
     def create_wireframe_w_coordinates(
-        self, coordinates: list[Coordinates], color: Color, name: str = None
+        self, coordinates: list[Coordinates], color: Color, filled: bool, name: str = None
     ):
         if name is None:
             name = self.new_name("Wireframe")
-        wireframe = Wireframe(coordinates, color)
+        wireframe = Wireframe(coordinates, color, filled)
         self._display_file[name] = wireframe
         self._drawer.insert_drawable(name)
         wireframe_NDC = deepcopy(wireframe)
@@ -146,14 +146,14 @@ class Controller:
         self.redraw()
 
     def create_wireframe(
-        self, list_x: list[int | float], list_y: list[int | float], color: Color
+        self, list_x: list[int | float], list_y: list[int | float], color: Color, filled: bool
     ):
         coordinates = list()
         for i in range(len(list_x)):
             coordinate = Coordinates(list_x[i], list_y[i])
             coordinates.append(coordinate)
 
-        self.create_wireframe_w_coordinates(coordinates, color)
+        self.create_wireframe_w_coordinates(coordinates, color, filled)
 
     def redraw(self):
         self._drawer.clear()
