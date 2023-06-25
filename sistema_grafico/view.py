@@ -14,7 +14,8 @@ from tkinter import (
     ttk,
     Radiobutton,
     IntVar,
-    Checkbutton
+    Checkbutton,
+    messagebox,
 )
 from tkinter.filedialog import askopenfile, asksaveasfile
 from pathlib import Path
@@ -25,6 +26,8 @@ if TYPE_CHECKING:
     from controller import Controller
 
 from model import Coordinates, Area2d, Color
+
+import re
 
 WIDTH = 5
 COLOR = "green"
@@ -111,13 +114,13 @@ class Graphic_Viewer:
 
     def ask_several_coordinates(self, coord_frame):
         Label(coord_frame, text="All endpoints").pack()
-        all_coordinates = Frame(coord_frame)
-        all_coordinates.pack()
+        all_coordinates_str = Frame(coord_frame)
+        all_coordinates_str.pack()
 
-        all_x = Listbox(all_coordinates, width=5)
+        all_x = Listbox(all_coordinates_str, width=5)
         all_x.pack(side="left")
 
-        all_y = Listbox(all_coordinates, width=5)
+        all_y = Listbox(all_coordinates_str, width=5)
         all_y.pack(side="right")
 
         Label(coord_frame, text="New endpoint").pack()
@@ -164,7 +167,74 @@ class Graphic_Viewer:
             case _:
                 return Color.MAGENTA
 
-    # Creation of point - still not working
+    def create_curve(self, coordinates_entry: Entry, color: Color):
+        print("Ahoy")
+        all_coordinates_str = coordinates_entry.get()
+        all_coordinates_str = all_coordinates_str.replace(" ", "")
+        pattern = "^(\(\d+\.?\d*,\d+\.?\d*\),)*(\(\d+\.?\d*,\d+\.?\d*\))$"
+        if re.search(pattern, all_coordinates_str) is None:
+            messagebox.showerror("Invalid input format!")
+            return
+        
+        all_coordinates_str = all_coordinates_str.split("),(")
+
+        if len(all_coordinates_str) < 3:
+            messagebox.showerror("Less than 3 coordinates!")
+            return
+        
+        all_coordinates = list()
+
+        # First coordinates
+        x, y = all_coordinates_str[0].split(',')
+        x = x[1:]
+        coordinates = Coordinates(float(x), float(y))
+        all_coordinates.append(coordinates)
+
+        # Middle coordinates
+        for coordinates_str in all_coordinates_str[1:-1]:
+            x, y = coordinates_str.split(',')
+            coordinates = Coordinates(float(x), float(y))
+            all_coordinates.append(coordinates)
+
+        # Last coordinates
+        x, y = all_coordinates_str[-1].split(',')
+        y = y[:-1]
+        coordinates = Coordinates(float(x), float(y))
+        all_coordinates.append(coordinates)
+
+        print(all_coordinates)
+
+        self.controller.create_curve_w_coordinates(all_coordinates, color)
+
+    # Creation of curve
+    def create_curve_window(self):
+        create_curve_window = Toplevel(self._main_window)
+        create_curve_window.title("Create curve")
+
+        curve_coord_frame = Frame(create_curve_window)
+        curve_coord_frame.pack()
+
+        coordinates_frame = Frame(curve_coord_frame)
+        coordinates_frame.pack()
+
+        Label(coordinates_frame, text="Coordinates:").pack(side="left")
+
+        coordinates_entry = Entry(coordinates_frame, width=50)
+        coordinates_entry.pack(side="right")
+
+        Label(curve_coord_frame, text="Input format: (x1,y1),(x2,y2),(x3,y3),(x4,y4)...").pack()
+
+        color = self.create_color(curve_coord_frame)
+
+        Button(
+            curve_coord_frame,
+            command=lambda: self.create_curve(
+                coordinates_entry, self.map_color(color.get())
+            ),
+            text="Create",
+        ).pack()
+
+    # Creation of point
     def create_point_window(self):
         create_point_window = Toplevel(self._main_window)
         create_point_window.title("Create point")
@@ -551,17 +621,25 @@ class Graphic_Viewer:
 
         Label(create_frame, text="Create:").pack()
 
+        create_frame_top = Frame(create_frame)
+        create_frame_top.pack()
+        create_frame_bottom = Frame(create_frame)
+        create_frame_bottom.pack()
+
         Button(
-            create_frame, text="Point", command=lambda: self.create_point_window()
+            create_frame_bottom, text="Point", command=lambda: self.create_point_window()
         ).pack(side="left")
         Button(
-            create_frame, text="Line", command=lambda: self.create_line_window()
+            create_frame_top, text="Line", command=lambda: self.create_line_window()
         ).pack(side="left")
         Button(
-            create_frame,
+            create_frame_top,
             text="Wireframe",
             command=lambda: self.create_wireframe_window(),
         ).pack(side="left")
+        Button(
+            create_frame_bottom, text="Curve", command=lambda: self.create_curve_window()
+        ).pack(side="top")
 
         # Window control
         window_control_frame = Frame(window_function)
@@ -672,11 +750,13 @@ class Graphic_Viewer:
             self._canvas.create_line(
                 endpoint1.x, endpoint1.y, endpoint2.x, endpoint2.y, fill=color.value
             )
-    
+
     def draw_wireframe_filled(self, vertexes: list[Coordinates], color: Color):
         vertexes_transformed = list()
         for vertex in vertexes:
-            vertexes_transformed.append(self.controller.transform_window_to_viewport(vertex))
+            vertexes_transformed.append(
+                self.controller.transform_window_to_viewport(vertex)
+            )
         x_and_y_alternating = list()
         for vertex in vertexes_transformed:
             x_and_y_alternating.append(vertex.x)
@@ -697,8 +777,8 @@ class Graphic_Viewer:
         # self.controller.create_line(0, 0, 1, 1, Color.MAGENTA)
         # self.controller.create_line(0, 1, 1, 0, Color.MAGENTA)
         # self.controller.create_wireframe(
-            # [-0.75, 0.5, 0.65], [-0.75, 0.5, -0.7], Color.BLUE
-            # [-0.75, 0.65, 0.5], [-0.75, -0.7, 0.5], Color.BLUE
-            # [-0.75, 0.5, 0.5], [-0.75, -0.75, 0.5], Color.BLUE
+        # [-0.75, 0.5, 0.65], [-0.75, 0.5, -0.7], Color.BLUE
+        # [-0.75, 0.65, 0.5], [-0.75, -0.7, 0.5], Color.BLUE
+        # [-0.75, 0.5, 0.5], [-0.75, -0.75, 0.5], Color.BLUE
         # )
         self._main_window.mainloop()

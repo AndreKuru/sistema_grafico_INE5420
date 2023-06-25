@@ -130,14 +130,18 @@ def clip_point_Cohen_Sutherland(
         if angular_coeficient == 0:
             new_x = endpoint.x
         else:
-            new_x = endpoint.x + (1 / angular_coeficient) * (const.WINDOW_NDC_MAX_Y - endpoint.y)
+            new_x = endpoint.x + (1 / angular_coeficient) * (
+                const.WINDOW_NDC_MAX_Y - endpoint.y
+            )
         new_endpoint = Coordinates(new_x, const.WINDOW_NDC_MAX_Y)
 
     elif region_code[1] == "1":  # Over the bottom
         if angular_coeficient == 0:
             new_x = endpoint.x
         else:
-            new_x = endpoint.x + (1 / angular_coeficient) * (const.WINDOW_NDC_MIN_Y - endpoint.y)
+            new_x = endpoint.x + (1 / angular_coeficient) * (
+                const.WINDOW_NDC_MIN_Y - endpoint.y
+            )
         new_endpoint = Coordinates(new_x, const.WINDOW_NDC_MIN_Y)
 
     if (
@@ -222,7 +226,7 @@ class Line:
 
         if int(region_code1, 2) & int(region_code2, 2) != 0:
             return None
-        
+
         delta_x = self.endpoint2.x - self.endpoint1.x
 
         if delta_x == 0:
@@ -378,7 +382,7 @@ class Wireframe:
         for vertex1, vertex2 in zip(
             self.vertexes, self.vertexes[1:] + [self.vertexes[0]]
         ):
-            #clockwise_sum += (vertex2.x - vertex1.x) * (vertex2.y - vertex1.y)
+            # clockwise_sum += (vertex2.x - vertex1.x) * (vertex2.y - vertex1.y)
             # top       = +
             # right     = +
             # bottom    = -
@@ -429,9 +433,7 @@ class Wireframe:
                         or self.vertexes[0].y == const.WINDOW_NDC_MIN_Y
                         or self.vertexes[0].y == const.WINDOW_NDC_MAX_Y
                     ):
-                        border_vertexes.append(
-                            (new_line.endpoint2, len(new_vertexes))
-                        )
+                        border_vertexes.append((new_line.endpoint2, len(new_vertexes)))
                 new_vertexes.append(new_line.endpoint2)
 
         if clockwise_sum < 0:

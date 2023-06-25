@@ -133,7 +133,11 @@ class Controller:
         self.create_line_w_coordinates(endpoint1, endpoint2, color)
 
     def create_wireframe_w_coordinates(
-        self, coordinates: list[Coordinates], color: Color, filled: bool, name: str = None
+        self,
+        coordinates: list[Coordinates],
+        color: Color,
+        filled: bool,
+        name: str = None,
     ):
         if name is None:
             name = self.new_name("Wireframe")
@@ -146,7 +150,11 @@ class Controller:
         self.redraw()
 
     def create_wireframe(
-        self, list_x: list[int | float], list_y: list[int | float], color: Color, filled: bool
+        self,
+        list_x: list[int | float],
+        list_y: list[int | float],
+        color: Color,
+        filled: bool,
     ):
         coordinates = list()
         for i in range(len(list_x)):
@@ -154,6 +162,9 @@ class Controller:
             coordinates.append(coordinate)
 
         self.create_wireframe_w_coordinates(coordinates, color, filled)
+    
+    def create_curve_w_coordinates(self, all_coordinates: list[Coordinates], color: Color):
+        ...
 
     def redraw(self):
         self._drawer.clear()
