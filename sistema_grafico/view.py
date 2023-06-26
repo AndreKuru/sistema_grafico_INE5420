@@ -168,9 +168,9 @@ class Graphic_Viewer:
                 return Color.MAGENTA
 
     def create_curve(self, coordinates_entry: Entry, color: Color):
-        print("Ahoy")
         all_coordinates_str = coordinates_entry.get()
         all_coordinates_str = all_coordinates_str.replace(" ", "")
+        all_coordinates_str = all_coordinates_str.replace("\n", "")
         pattern = "^(\(\d+\.?\d*,\d+\.?\d*\),)*(\(\d+\.?\d*,\d+\.?\d*\))$"
         if re.search(pattern, all_coordinates_str) is None:
             messagebox.showerror("Invalid input format!")
@@ -178,10 +178,14 @@ class Graphic_Viewer:
         
         all_coordinates_str = all_coordinates_str.split("),(")
 
-        if len(all_coordinates_str) < 3:
-            messagebox.showerror("Less than 3 coordinates!")
+        if len(all_coordinates_str) < 4:
+            messagebox.showerror("Less than 4 coordinates!")
             return
-        
+
+        if (len(all_coordinates_str) - 1) % 3 != 0:
+            messagebox.showerror("Invalid coordinates amount!")
+            return
+
         all_coordinates = list()
 
         # First coordinates
@@ -201,8 +205,6 @@ class Graphic_Viewer:
         y = y[:-1]
         coordinates = Coordinates(float(x), float(y))
         all_coordinates.append(coordinates)
-
-        print(all_coordinates)
 
         self.controller.create_curve_w_coordinates(all_coordinates, color)
 

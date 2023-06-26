@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 
-from model import Coordinates, Point, Line, Wireframe, Drawable, Area2d, Color
+from model import Coordinates, Point, Line, Wireframe, Drawable, Area2d, Color, Curve2D
 from math import sin, cos, radians
 from numpy import double, dot
 from copy import deepcopy
@@ -163,8 +163,21 @@ class Controller:
 
         self.create_wireframe_w_coordinates(coordinates, color, filled)
     
-    def create_curve_w_coordinates(self, all_coordinates: list[Coordinates], color: Color):
-        ...
+    def create_curve_w_coordinates(
+        self, 
+        all_coordinates: list[Coordinates], 
+        color: Color,
+        name: str = None,
+    ):
+        if name is None:
+            name = self.new_name("Curve")
+        curve2d = Curve2D(all_coordinates, color)
+        self._display_file[name] = curve2d
+        self._drawer.insert_drawable(name)
+        curve2d_NDC = deepcopy(curve2d)
+        curve2d_NDC.transform(self._transformation_NDC)
+        self._display_file_NDC[name] = curve2d_NDC
+        self.redraw()
 
     def redraw(self):
         self._drawer.clear()

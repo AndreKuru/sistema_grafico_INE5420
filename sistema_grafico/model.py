@@ -677,3 +677,90 @@ class Wireframe:
             return None
 
         return new_wireframes
+
+@dataclass
+class Curve2D_clipped:
+    vertexes: list[Coordinates]
+    color: Color = Color.BLACK
+
+    def draw(self, drawer: Drawer):
+        for i in range(len(self.vertexes) - 1):
+            drawer.draw_line(self.vertexes[i], self.vertexes[i + 1], self.color)
+
+    # This object is already transformed
+    def transform(self, matrix: list[list[int | double | float]]):
+        ...
+
+    # This object does not support tranformations besides the ones made in the window
+    def calculate_center(self):
+        ...
+
+    # This object is already clipped
+    def clip_NDC(self, default: bool = True):
+        ...
+
+@dataclass
+class Curve2D:
+    vertexes: list[Coordinates]
+    color: Color = Color.BLACK
+    step: float = 0.001
+
+    # This object is only draw after clipped
+    def draw(self, drawer: Drawer):
+        ...
+
+    def transform(self, matrix: list[list[int | double | float]]):
+        new_vertexes = list()
+        for vertex in self.vertexes:
+            new_vertexes.append(transform(vertex, matrix))
+        self.vertexes = new_vertexes
+
+    # This object does not support transformation
+    def calculate_center(self):
+        ...
+
+    def clip_NDC(self, default: bool = True) -> list[Curve2D_clipped] | None:
+        bezier_transformation = (
+            (-1, 3, -3, 1), 
+            (3, -6, -3, 6), 
+            (-3, 3, 0, 0), 
+            (1, 0, 0, 0)
+            )
+
+        initial_vertex = 0
+        curves_vertexes = list()
+        while(initial_vertex + 3 < len(self.vertexes)):
+            final_vertex = initial_vertex + 4
+
+            geometry_matrix = list()
+            for vertex in self.vertexes[initial_vertex:final_vertex]:
+                geometry_matrix.append([vertex.x, vertex.y])
+
+            curve_matrix = dot(bezier_transformation, geometry_matrix)
+
+            curve_vertexes = list()
+            t = 0
+            while t <= 1:
+                x, y = dot((t**3, t**2, t, 1), curve_matrix)
+                curve_vertexes.append((Coordinates(x, y)))
+                t += self.step
+            
+            curves_vertexes.append(curve_vertexes)
+            initial_vertex += 3
+        # End while
+
+        vertexes_clipped = list()
+        for curve_vertexes in curves_vertexes:
+            for vertex in curve_vertexes:
+                if (
+                    vertex.x >= const.WINDOW_NDC_MIN_X
+                    and vertex.x <= const.WINDOW_NDC_MAX_X
+                    and vertex.y >= const.WINDOW_NDC_MIN_Y
+                    and vertex.y <= const.WINDOW_NDC_MAX_Y
+                ):
+                    vertexes_clipped.append(deepcopy(vertex))
+
+        if len(vertexes_clipped) == 0:
+            return None
+        
+        return [Curve2D_clipped(vertexes_clipped, self.color)]
