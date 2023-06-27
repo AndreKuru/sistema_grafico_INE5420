@@ -722,7 +722,7 @@ class Curve2D:
     def clip_NDC(self, default: bool = True) -> list[Curve2D_clipped] | None:
         bezier_transformation = (
             (-1, 3, -3, 1), 
-            (3, -6, -3, 6), 
+            (3, -6, 3, 0), 
             (-3, 3, 0, 0), 
             (1, 0, 0, 0)
             )
