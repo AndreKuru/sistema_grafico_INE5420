@@ -173,17 +173,17 @@ class Graphic_Viewer:
         all_coordinates_str = all_coordinates_str.replace("\n", "")
         pattern = "^(\(-?\d+\.?\d*,-?\d+\.?\d*\),)*(\(-?\d+\.?\d*,-?\d+\.?\d*\)),?$"
         if re.search(pattern, all_coordinates_str) is None:
-            messagebox.showerror("Invalid input format!")
+            messagebox.showerror("Error!","Invalid input format!")
             return
         
         all_coordinates_str = all_coordinates_str.split("),(")
 
         if len(all_coordinates_str) < 4:
-            messagebox.showerror("Less than 4 coordinates!")
+            messagebox.showerror("Error!","Less than 4 coordinates!")
             return
 
         if (len(all_coordinates_str) - 1) % 3 != 0:
-            messagebox.showerror("Invalid coordinates amount!")
+            messagebox.showerror("Error!","Invalid coordinates amount!")
             return
 
         all_coordinates = list()
@@ -201,7 +201,7 @@ class Graphic_Viewer:
             all_coordinates.append(coordinates)
 
         # Last coordinates
-        x, y = all_coordinates_str[-1].split(',')[:-1]
+        x, y = all_coordinates_str[-1].split(',')[0:2]
         y = y[:-1]
         coordinates = Coordinates(float(x), float(y))
         all_coordinates.append(coordinates)
